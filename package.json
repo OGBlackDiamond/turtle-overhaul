@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.4",
+    "@types/node": "^20.2.5",
+    "@types/ws": "^8.5.4",
+    "ts-node": "^10.9.1"
+  },
+  "scripts": {
+    "dev": "nodemon dist/server.js"
+  },
+  "dependencies": {
+    "@types/websocket": "^1.0.5",
+    "ngrok": "^5.0.0-beta.2",
+    "node": "^20.2.0",
+    "ws": "^8.13.0"
+  }
+}

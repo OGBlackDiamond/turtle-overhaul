@@ -1,6 +1,8 @@
+prompt = string.format("blackdiamond@%s", os.getComputerLabel())
+
 -- Greets User
 settings.set("motd.enable", false)
-textutils.slowPrint("         {<>}\n BlackDiamond's Turtle\n Don't look at my code unless \n you are a 5head ;)\n Should I startup? (y/n)")
+textutils.slowPrint("\t\t{<>}\n\tBlackDiamond OS\nDon't look at my code unles you are a 5head ;)\nShould I startup? (y/n)\n")
 
 passcode = "BlackDiamond"
 -- Computer Safety!
@@ -67,7 +69,7 @@ function command_center()
                 textutils.slowPrint("Starting the mining algorithm!\nThis is the fun part!!")
                 choice = nil
                 textutils.slowPrint("Place a chest in my bottom right inventory slot, and at least 15 coal in the 1st slot")
-                while (turtle.getItemDetail(16) == nil) do
+                while (turtle.getItemDetail(16) ~= "minecraft:chest" or turtle.getItemDetail(1) ~= ("minecraft:coal" or "minecraft:coal_block")) do
                     textutils.slowPrint("Waiting...                        ")
                 end
                 textutils.slowPrint("Would you like to mine manually, or autonomusly?")
@@ -219,7 +221,7 @@ function mine_algo(mode)
         end
 
 
-       -- Stops the loop if player steps in front of the player
+       -- Stops the loop if player steps in front of the turtle
         if (turtle.attack()) then
             textutils.slowPrint("Enter Password: ")
             if (password_check(passcode)) then
@@ -268,7 +270,7 @@ function mine_with_inv_management(item, direction)
     else
         turtle.select(2)
     end
-    
+
     if (direction == "forward") then
         turtle.dig()
     elseif (direction == "left") then
@@ -335,9 +337,6 @@ function test_value(direction, mode)
             is_block, data = turtle.inspect()
         elseif (direction == "down") then
             is_block, data = turtle.inspectDown()
-        else 
-            print("Invalid inspect direction! Defaulting to forward.")
-            is_block, data = turtle.inspect()
         end
 
         if (is_block) then
@@ -353,7 +352,7 @@ function test_value(direction, mode)
 end
 
 --[[
-    End of mining algorithm section    
+    End of mining algorithm section
 --]]
 
 
