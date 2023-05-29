@@ -1,7 +1,7 @@
-import { Server, WebSocketServer } from 'ws';
+import { WebSocketServer } from 'ws';
 import { connect } from 'ngrok';
 
-const wss = new Server({ port: 8080 });
+const wss = new WebSocketServer({ port: 8080 });
 
 wss.on('connection', function connection(ws) {
     console.log("Server online");
@@ -18,7 +18,7 @@ wss.on('connection', function connection(ws) {
     })
 
     ws.on('ping', function ping(data) {
-        console.log("pong");
+        console.log(data);
     })
 
     ws.send('something');
