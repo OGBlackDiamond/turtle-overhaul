@@ -1,0 +1,15 @@
+TODO:
+
+    ASAP:
+        - get websocket communication functional
+        - json file for turtle data to be saved once program stops 
+
+
+    Sooner rather than later:
+        - make advanced logic for turtle tasks to be autonomous
+        - 3D veiw of turtles - being able to switch between them, etc
+        - add support for multiple turtles?
+
+    End of Development:
+        - make control pannel pretty
+        - finsh offline code for startup
