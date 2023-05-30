@@ -1,41 +1,51 @@
-import WebSocket, { RawData, Server } from 'ws';
+import { RawData, Server } from 'ws';
 import { connect } from 'ngrok';
 import { Turtle } from './turtle';
 
 const wss = new Server({ port: 8080 });
 let turtle: Turtle;
-let turtleState: any = {};
-let command: string;
 
+// this will run when a user connects to the server
 wss.on('connection', function connection(ws) {
-    console.log("Server online");
+    console.log("Someone connected");
+    // passes the websocket to a new turtle instance
     turtle = new Turtle(ws);
 
+    // error handling
     ws.on('error', function error(err) {
         console.log(err);
     });
 
+    // this will run when the server is messaged from the webpage with data about how the turtle should move
     ws.on('message', function message(msg) {
-        turtleState = getTurtleData(msg);
-        // command will be given externally, it should be something like "return turtle.[valid turtle function]"
-        executeTurtleCommand(ws, command);
-        turtle.updateData(turtleState);
-    });
+        // msg will be given externally via the webpage
+        var data = msg.toString()
+        /*
+            Any message sent from the webpage will begin with 'return'
+            We can use this attribute to differentiate between requests from the turtle, and that of the webpage
+        */ 
+        if (data.slice(0, 6) == "return") {
+            // executes the command on the turtle
+            turtle.executeTurtleCommand(ws, msg, false);
+        } else {
+            // updates the current turtle data
+            getTurtleData(msg);
+        }
 
+    });
     //ws.send('test');
 });
 
+// asynchronously waits for a connection on the listening port
 (async ()  => {
     const url = await connect(8080);
     console.log(url);
 })();
 
-function executeTurtleCommand(ws: WebSocket, command: string) {
-    // sends the data of the function to be run to the turtle
-    ws.send(JSON.stringify({func:command}));
-}
-
+// this function will get data from the turtle, and pass it into 
 function getTurtleData(message: RawData) {
     let data: string = JSON.stringify(message);
-    return data;
+    // passes the data to the turtle
+    turtle.updateData(data);
+    //return data;
 }

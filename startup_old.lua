@@ -2,7 +2,7 @@ prompt = string.format("blackdiamond@%s", os.getComputerLabel())
 
 -- Greets User
 settings.set("motd.enable", false)
-textutils.slowPrint("\t\t{<>}\n\tBlackDiamond OS\nDon't look at my code unles you are a 5head ;)\nShould I startup? (y/n)\n")
+textutils.slowPrint("\t\t{<>}\n\tBlackDiamond's Turtle\nDon't look at my code unles you are a 5head ;)\nShould I startup? (y/n)\n")
 
 passcode = "BlackDiamond"
 -- Computer Safety!

@@ -1,2 +1,2 @@
-# turtle gambit
- All of the lua code contained to make efficient turtle.
+# turtle overhaul
+The awesome sauce to make a gigachad CC:Tweaked turtle in minecraft
