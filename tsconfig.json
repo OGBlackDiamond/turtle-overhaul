@@ -33,7 +33,6 @@
 		"declaration": true,
 		"skipLibCheck": true,
 		"esModuleInterop": true,
-
 		"pretty": true
 	},
 	"peerDependencies": {
