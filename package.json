@@ -6,12 +6,24 @@
     "ts-node": "^10.9.1"
   },
   "scripts": {
+    "magic": "webpack",
     "dev": "nodemon dist/server.js"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.13.3",
+    "@mui/x-data-grid": "^6.5.0",
+    "@types/react": "^18.2.7",
+    "@types/react-dom": "^18.2.4",
     "@types/websocket": "^1.0.5",
     "ngrok": "^5.0.0-beta.2",
     "node": "^20.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "ts-loader": "^9.4.3",
+    "webpack": "^5.85.0",
+    "webpack-cli": "^5.1.1",
     "ws": "^8.13.0"
   }
 }
