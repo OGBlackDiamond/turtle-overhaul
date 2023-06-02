@@ -4,8 +4,8 @@ import WebSocket, { RawData } from "ws";
 // where all of the fun things with the turtle will happen
 
 export class Turtle {
-    turtleData: any = {};
-    ws: WebSocket;
+    private turtleData: any = {};
+    private ws: WebSocket;
 
     constructor(ws: WebSocket) {
         this.ws = ws;
@@ -16,8 +16,12 @@ export class Turtle {
         this.turtleData = data;
     }
 
+    public sendCommand(ws: WebSocket, command: RawData) {
+        
+    }
+
     // this function will eventually handle all of the logic for the turtle
-    public  executeTurtleCommand(ws: WebSocket, command: RawData, isCommand: boolean) {
+    private  executeTurtleCommand(ws: WebSocket, command: RawData, isCommand: boolean) {
         // if the command is a single command, shoot it to the turtle
         if (isCommand) {
             // sends the data of the function to be run to the turtle

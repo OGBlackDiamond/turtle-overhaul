@@ -3,13 +3,20 @@ import { connect } from 'ngrok';
 import { Turtle } from './turtle';
 
 const wss = new Server({ port: 8080 });
-let turtle: Turtle;
+let turtles: Turtle[];
+let turtleCount: number = 0;
+let selectedTurtle: Turtle;
 
 // this will run when a user connects to the server
 wss.on('connection', function connection(ws) {
     console.log("Someone connected");
     // passes the websocket to a new turtle instance
-    turtle = new Turtle(ws);
+    turtles[turtleCount] = new Turtle(ws);
+    turtleCount++;
+    // will automatically select the first turtle if no other ones exist
+    if (turtles[1] == null) {
+        selectedTurtle = turtles[0];
+    }
 
     // error handling
     ws.on('error', function error(err) {
@@ -19,26 +26,25 @@ wss.on('connection', function connection(ws) {
     // this will run when the server is messaged from the webpage with data about how the turtle should move
     ws.on('message', function message(msg) {
         // msg will be given externally via the webpage
-        var data = msg.toString()
-        /*
-            Any message sent from the webpage will begin with 'return'
-            We can use this attribute to differentiate between requests from the turtle, and that of the webpage
-        */ 
-        if (data.slice(0, 6) == "return") {
+        var data: string = msg.toString();
+        // any data sent to the server will have a prefix to identify where it is coming from 
+        if (data.slice(0, 1) == 'c') {
             // executes the command on the turtle
-            turtle.executeTurtleCommand(ws, msg, false);
-        } else {
+            selectedTurtle.sendCommand(ws, msg);
+        } else if (data.slice(0, 1) == 'd') {
             // updates the current turtle data
             getTurtleData(msg);
+        } else {
+            ws.send("Message ${data} is not formatted correctly!\nIt will not be sent or recieved.");
+            console.log("Message ${data} is not formatted correctly!\nIt will not be sent or recieved.");
         }
-
     });
     //ws.send('test');
 });
 
 // asynchronously waits for a connection on the listening port
 (async ()  => {
-    const url = await connect(8080);
+    const url: string = await connect(8080);
     console.log(url);
 })();
 
@@ -46,6 +52,5 @@ wss.on('connection', function connection(ws) {
 function getTurtleData(message: RawData) {
     let data: string = JSON.stringify(message);
     // passes the data to the turtle
-    turtle.updateData(data);
-    //return data;
+    selectedTurtle.updateData(data);
 }

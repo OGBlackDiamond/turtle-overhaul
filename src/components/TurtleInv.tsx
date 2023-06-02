@@ -65,7 +65,6 @@ render() {
           <Item>16</Item>
         </Grid>
       </Grid>
-
     </div>
     );
   }
