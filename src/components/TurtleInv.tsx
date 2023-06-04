@@ -1,5 +1,5 @@
 import * as React from "react";
-import Turtle from '../UI'
+import Turtle from '../Interfaces'
 import Grid from '@mui/material/Grid';
 import Item from "@mui/material/ListItem";
 import { UIStyle } from "../styles/UIStyle"
@@ -17,52 +17,52 @@ render() {
       <h1>Turtle Inventory</h1>
       <Grid container style={gridStyle} id="top row">
         <Grid item style={itemStyle}>
-          <Item>1</Item>
+          <Item>{this.props.invSlot1}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>2</Item>
+          <Item>{this.props.invSlot2}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>3</Item>
+          <Item>{this.props.invSlot3}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>4</Item>
+          <Item>{this.props.invSlot4}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>5</Item>
+          <Item>{this.props.invSlot5}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>6</Item>
+          <Item>{this.props.invSlot6}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>7</Item>
+          <Item>{this.props.invSlot7}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>8</Item>
+          <Item>{this.props.invSlot8}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>9</Item>
+          <Item>{this.props.invSlot9}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>10</Item>
+          <Item>{this.props.invSlot10}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>11</Item>
+          <Item>{this.props.invSlot11}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>12</Item>
+          <Item>{this.props.invSlot12}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>13</Item>
+          <Item>{this.props.invSlot13}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>14</Item>
+          <Item>{this.props.invSlot14}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>15</Item>
+          <Item>{this.props.invSlot15}</Item>
         </Grid>
         <Grid item style={itemStyle}>
-          <Item>16</Item>
+          <Item>{this.props.invSlot16}</Item>
         </Grid>
       </Grid>
     </div>

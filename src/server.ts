@@ -2,10 +2,12 @@ import { RawData, Server } from 'ws';
 import { connect } from 'ngrok';
 import { Turtle } from './turtle';
 
+
 const wss = new Server({ port: 8080 });
 let turtles: Turtle[];
 let turtleCount: number = 0;
-let selectedTurtle: Turtle;
+let selectedTurtle: any = null;
+export default selectedTurtle;
 
 // this will run when a user connects to the server
 wss.on('connection', function connection(ws) {
@@ -30,7 +32,7 @@ wss.on('connection', function connection(ws) {
         // any data sent to the server will have a prefix to identify where it is coming from 
         if (data.slice(0, 1) == 'c') {
             // executes the command on the turtle
-            selectedTurtle.sendCommand(ws, msg);
+            //selectedTurtle.sendCommand(ws, msg);
         } else if (data.slice(0, 1) == 'd') {
             // updates the current turtle data
             getTurtleData(msg);

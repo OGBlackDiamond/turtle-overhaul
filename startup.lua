@@ -7,6 +7,72 @@ json = require("json")
 
 -- table to store the turtle's current data
 local turtle_state = {}
+local turtleInv = {
+    inv_slot2 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot1 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot3 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot4 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot5 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot6 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot7 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot8 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot9 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot10 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot11 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot12 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot13 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot14 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot15 = {
+        item_ammount = 0,
+        item_name = ""
+    },
+    inv_slot16 = {
+        item_ammount = 0,
+        item_name = ""
+    }
+}
 
 -- individual turtle data values to be set
 local direction_facing = "north"
@@ -70,5 +136,14 @@ end
 
 -- this will contain instructions for whatever needs to happen to gather data for the server
 function compile_turtle_data()
-    turtle_state = {direction_facing, current_pos[0], current_pos[1], current_pos[2]}
+    getInventory()
+    turtle_state = {direction_facing, current_pos[0], current_pos[1], current_pos[2], turtleInv}
+end
+
+function getInventory()
+    for i,v in ipairs(turtleInv) do
+        local slot_data = turtle.getItemDetail(i)
+        turtleInv[i].item_ammount = slot_data.count
+        turtleInv[i].item_name = slot.name
+    end
 end
