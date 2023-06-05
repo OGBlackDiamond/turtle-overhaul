@@ -24,7 +24,7 @@ export class Turtle {
             ws.send(JSON.stringify({func:command}));
         } else {
             // this will handle more complex tasks that need multiple commands, such as starting the mining algorithm, etc.
-            var instruction = command.toString();
+            //var instruction = command.toString();
         }
     }
 }

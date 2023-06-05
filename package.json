@@ -12,6 +12,7 @@
     "@types/websocket": "^1.0.5",
     "ngrok": "^5.0.0-beta.2",
     "node": "^20.2.0",
+    "typescript": "^5.0.4",
     "ws": "^8.13.0"
   }
 }

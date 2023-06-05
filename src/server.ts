@@ -1,5 +1,6 @@
 import { RawData, Server } from 'ws';
-import { connect } from 'ngrok';
+//import { connect } from 'ngrok';
+import { connect } from "node:net"
 import { Turtle } from './turtle';
 
 const wss = new Server({ port: 8080 });
