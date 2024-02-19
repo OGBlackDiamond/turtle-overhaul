@@ -10,20 +10,18 @@ function disconnect()
     ws.close()
 end
 
--- will endlessly try to connect to the server if it isn't already
-while err do
-    ws, err = http.websocket("ws://rx-78-2.ogblackdiamond.dev:25565")
-end
 
 ws.send("I AM HERE! CLICK ME!")
 
 -- MAIN CODE
 while true do
+    print("cp1")
     local msg = ws.receive()
+    print("cp2")
     if message == nil then
         break
     end
-
+    print("cp3")
     msg()
-
-
+    print("cp4]")
+end
