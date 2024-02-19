@@ -21,10 +21,11 @@ else
         print("cp1")
         local msg = ws.receive()
         print("cp2")
-        if message == nil then
+        if msg == nil then
             break
         end
+        local command = loadstring(msg)
         print("cp3")
-        msg()
+        command()
         print("cp4]")
     end
