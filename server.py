@@ -1,38 +1,33 @@
-import socket
-import threading
+import asyncio
+import websockets
 
-PORT = 8080
-SERVER = socket.gethostbyname("rx-78-2")
 
-ADD = (SERVER, PORT)
-
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(ADD)
-
+PORT = 25565
+HOST = "rx-78-2"
 
 DISCONNECT_MESSAGE = "END-OF-LINE"
 
-def handle_client(conn, add):
-    print(f"NEW CONNECTION @ {add}")
+
+async def handler(websocket):
+    print(f"CONNECTION RECIEVED")
 
     connected = True
+
     while connected:
-        msg = conn.recv().decode("utf-8")
-
+        msg = await websocket.recv()
         if msg == DISCONNECT_MESSAGE:
-            connected = False
+            connected = False;
+            break
         print(msg)
+        await websocket.send(msg)
 
-    conn.close()
+    print("CLOSING SOCKET")
+    await websocket.close()
 
 
-def start():
-    print("SERVER STARTING")
-    server.listen()
-    while True:
-        conn, add = server.accept()
-        thread = threading.Thread(target=handle_client, args=(conn, add))
-        thread.start()
-        print(f"ACTIVE CONNECTIONS: {threading.active_count() - 1}")
 
-start()
+
+start_server = websockets.serve(handler, HOST, PORT, ssl=None, compression=None)
+print("STARTING SERVER")
+asyncio.get_event_loop().run_until_complete(start_server)
+asyncio.get_event_loop().run_forever()
