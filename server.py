@@ -19,10 +19,9 @@ async def handler(websocket):
             connected = False;
             break
         print(msg)
-        await websocket.send(msg)
+        await websocket.send("return turtle.turnRight()")
 
     print("CLOSING SOCKET")
-    await websocket.close()
 
 
 
