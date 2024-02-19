@@ -5,6 +5,7 @@ import websockets
 PORT = 25565
 HOST = "rx-78-2"
 
+TRUST_MESSAGE = "Shake my hand bro"
 DISCONNECT_MESSAGE = "END-OF-LINE"
 
 
@@ -12,6 +13,14 @@ async def handler(websocket):
     print(f"CONNECTION RECIEVED")
 
     connected = True
+
+    first_msg = await websocket.recv()
+    if first_msg != TRUST_MESSAGE:
+        connected = False
+        print("Blud did not shake my hand lmao")
+        websocket.close()
+        return
+
 
     while connected:
         msg = await websocket.recv()
