@@ -10,18 +10,21 @@ function disconnect()
     ws.close()
 end
 
+if err then
+    print(err)
+else 
 
-ws.send("I AM HERE! CLICK ME!")
+    ws.send("I AM HERE! CLICK ME!")
 
--- MAIN CODE
-while true do
-    print("cp1")
-    local msg = ws.receive()
-    print("cp2")
-    if message == nil then
-        break
+    -- MAIN CODE
+    while true do
+        print("cp1")
+        local msg = ws.receive()
+        print("cp2")
+        if message == nil then
+            break
+        end
+        print("cp3")
+        msg()
+        print("cp4]")
     end
-    print("cp3")
-    msg()
-    print("cp4]")
-end
