@@ -2,13 +2,19 @@ import asyncio
 import websockets
 
 
+# identifies the port
 PORT = 25565
+
+# identifies the hostname
 HOST = "rx-78-2"
 
+# sets the trust message that essentially acts as a secondary handshake
 TRUST_MESSAGE = "Shake my hand bro"
+
+# sets the message that will indicate a disconnection 
 DISCONNECT_MESSAGE = "END-OF-LINE"
 
-
+# handles a new connection
 async def handler(websocket):
     print(f"CONNECTION RECIEVED")
 

@@ -15,7 +15,7 @@ end
 
 if err then
     print(err)
-else 
+else
 
     ws.send(TRUST_MESSAGE)
 
