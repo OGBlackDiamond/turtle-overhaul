@@ -3,13 +3,13 @@ import websockets
 
 
 # identifies the port
-PORT = 25565
+PORT = 3000
 
 # identifies the hostname
 HOST = "rx-78-2"
 
 # sets the trust message that essentially acts as a secondary handshake
-TRUST_MESSAGE = "Shake my hand bro"
+TURTLE_MESSAGE = "Shake my hand bro"
 
 # sets the message that will indicate a disconnection 
 DISCONNECT_MESSAGE = "END-OF-LINE"
@@ -21,12 +21,12 @@ async def handler(websocket):
     connected = True
 
     first_msg = await websocket.recv()
-    if first_msg != TRUST_MESSAGE:
+    if first_msg != TURTLE_MESSAGE:
         connected = False
-        print("Blud did not shake my hand lmao")
+        print("Connection Refused")
+        await websocket.send("print(\"Connection Refused\")")
         websocket.close()
         return
-
 
     while connected:
         msg = await websocket.recv()
