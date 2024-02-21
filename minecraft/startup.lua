@@ -1,5 +1,5 @@
 -- connect to the server
-ws, err = http.websocket("ws://rx-78-2.ogblackdiamond.dev:25565")
+ws, err = http.websocket("ws://rx-78-2.ogblackdiamond.dev:3000")
 
 -- create trust message
 TRUST_MESSAGE = "Shake my hand bro"
@@ -13,10 +13,13 @@ function disconnect()
     ws.close()
 end
 
+-- checks if the connection failed
 if err then
     print(err)
 else
 
+
+    -- sends the secondary handshake
     ws.send(TRUST_MESSAGE)
 
     -- MAIN CODE
@@ -27,4 +30,6 @@ else
         end
         local command = loadstring(msg)
         command()
+        disconnect()
     end
+end
