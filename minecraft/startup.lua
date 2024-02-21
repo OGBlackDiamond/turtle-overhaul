@@ -30,6 +30,5 @@ else
         end
         local command = loadstring(msg)
         command()
-        disconnect()
     end
 end

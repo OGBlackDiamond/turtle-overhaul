@@ -27,6 +27,9 @@ async def handler(websocket):
         await websocket.send("print(\"Connection Refused\")")
         websocket.close()
         return
+    else:
+        print("Connection Established")
+        await websocket.send("print(\"Connection Established\")")
 
     while connected:
         msg = await websocket.recv()
