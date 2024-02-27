@@ -1,5 +1,5 @@
 -- connect to the server
-ws, err = http.websocket("ws://rx-78-2.ogblackdiamond.dev:3000")
+ws, err = http.websocket("ws://rx-78-2:3000")
 
 -- create trust message
 TRUST_MESSAGE = "Shake my hand bro"
@@ -15,7 +15,7 @@ end
 
 -- checks if the connection failed
 if err then
-    print(err)
+    print("Failed to connect to the websocket. Power me off and try again.")
 else
 
 
@@ -24,11 +24,12 @@ else
 
     -- MAIN CODE
     while true do
-        local msg = ws.receive()
+        local msg = ws.receive(5)
         if msg == nil then
             break
         end
         local command = loadstring(msg)
         command()
+        ws.send("e")
     end
 end
