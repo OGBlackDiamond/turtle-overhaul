@@ -25,11 +25,11 @@ else
     -- MAIN CODE
     while true do
         local msg = ws.receive(5)
-        if msg == nil then
-            break
+        local command = 0
+        if msg != nil then
+            command = loadstring(msg)
+            command()
         end
-        local command = loadstring(msg)
-        command()
         ws.send("e")
     end
 end

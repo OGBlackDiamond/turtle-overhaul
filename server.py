@@ -18,29 +18,27 @@ turtles = []
 
 # handles a new connection
 async def handle_connect(websocket, path):
-    print(f"CONNECTION RECIEVED @ {path}")
+    print(f"CONNECTION RECIEVED @ {websocket.remote_address[0]}")
     turtleIndex = len(turtles)
     turtles.append(f"Turtle {len(turtles)}")
 
     print(turtles[turtleIndex])
 
-
-    connected = True
-
     first_msg = await websocket.recv()
-    if False:
-        print("Connection Refused")
-        await websocket.send("return print('Connection Refused')")
-        await websocket.close()
-    else:
-        print("Connection Established")
-        await websocket.send("return print('Connection Established')")
+    await websocket.send("return print('Connection Refused')")
+    print(first_msg)
+    # if first_msg != TURTLE_MESSAGE:
+    #     print("Connection Refused")
+    #     await websocket.send("return print('Connection Refused')")
+    #     await websocket.close()
+    # else:
+    #     print("Connection Established")
+    #     await websocket.send("return print('Connection Established')")
 
-    while connected:
+    while True:
         msg = await websocket.recv()
         if msg == DISCONNECT_MESSAGE:
             break
-        print(websocket.is_client)
         await websocket.send("return turtle.turnRight()")
 
     print("CLOSING SOCKET")
