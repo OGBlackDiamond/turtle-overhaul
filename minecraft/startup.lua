@@ -26,7 +26,7 @@ else
     while true do
         local msg = ws.receive(5)
         local command = 0
-        if msg != nil then
+        if msg ~= nil then
             command = loadstring(msg)
             command()
         end
