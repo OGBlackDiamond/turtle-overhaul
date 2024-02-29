@@ -34,7 +34,8 @@ async def handle_connect(websocket, path):
         turtles.append(Turt_Object(Turtle(websocket), turtle_index))
         await websocket.send("return print('Connection Established')")
 
-    
+    while True:
+        pass
 
     turtles.remove(turtle_index)
     print("CLOSING SOCKET")
