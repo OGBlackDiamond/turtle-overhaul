@@ -1,6 +1,3 @@
-from server import turtles
+import server
 
-def main():
-    turtles[0].turtle.send("return print('ea sports its in the game')")
-
-main()
+server.get_turtles()[0].turtle.send("return print('ea sports its in the game')")

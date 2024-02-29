@@ -16,6 +16,8 @@ TURTLE_MESSAGE = "Shake my hand bro"
 turtles = []
 turtle_counter = 0
 
+def get_turtles():
+    return turtles
 
 # handles a new connection
 async def handle_connect(websocket, path):
