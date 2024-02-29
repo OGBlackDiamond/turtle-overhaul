@@ -1,3 +1,6 @@
 import main as e
 
-e.say()
+async def main():
+   await e.say()
+   
+main()
