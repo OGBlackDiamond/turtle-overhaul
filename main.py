@@ -1,3 +1,8 @@
 import server
 
-server.get_turtles().turtle.send("return print('ea sports its in the game')")
+turtles = []
+
+async def setTurtles(_turtles):
+    turtles = _turtles
+    
+    await turtles[0].turtle.send("return print('ea sports its in the game')")

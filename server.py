@@ -2,6 +2,7 @@ import asyncio
 import websockets
 from turtle_stuff.turtle import Turtle
 from turtle_stuff.turt_object import Turt_Object
+import main
 
 
 # identifies the port
@@ -17,7 +18,6 @@ turtles = []
 turtle_counter = 0
 
 def get_turtles():
-    global turtles
     return turtles[0]
 
 # handles a new connection
@@ -36,7 +36,7 @@ async def handle_connect(websocket, path):
 
         turtle_index = 0
         turtles.append(Turt_Object(Turtle(websocket), turtle_index))
-        await get_turtles().turtle.send("return print('ea sports its in the game')")
+        main.setTurtles(turtles)
         await websocket.send("return print('Connection Established')")
 
     while True:
