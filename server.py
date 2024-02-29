@@ -41,7 +41,8 @@ async def handle_connect(websocket, path):
     print("CLOSING SOCKET")
 
 
-start_server = websockets.serve(handle_connect, HOST, PORT, ssl=None, compression=None)
-print("STARTING SERVER")
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+async def main():
+    start_server = websockets.serve(handle_connect, HOST, PORT, ssl=None, compression=None)
+    print("STARTING SERVER")
+    asyncio.get_event_loop().run_until_complete(start_server)
+    asyncio.get_event_loop().run_forever()
