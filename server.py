@@ -36,7 +36,7 @@ async def handle_connect(websocket, path):
 
         turtle_index = 0
         turtles.append(Turt_Object(Turtle(websocket), turtle_index))
-        e.setTurtles(turtles)
+        await e.setTurtles(turtles)
         await websocket.send("return print('Connection Established')")
 
     while True:
