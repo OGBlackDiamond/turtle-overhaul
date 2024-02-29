@@ -16,11 +16,10 @@ TURTLE_MESSAGE = "Shake my hand bro"
 turtles = []
 turtle_counter = 0
 
-async def appendTurtle(turtle):
-    await turtles.append(turtle)
 
 # handles a new connection
 async def handle_connect(websocket, path):
+    global turtles, turtle_counter
     print(f"CONNECTION RECIEVED @ {websocket.remote_address[0]}")
 
     first_msg = await websocket.recv()
@@ -33,7 +32,7 @@ async def handle_connect(websocket, path):
         print("Connection Established")
 
         turtle_index = 0
-        appendTurtle(Turt_Object(Turtle(websocket), turtle_index))
+        turtles.append(Turt_Object(Turtle(websocket), turtle_index))
         await websocket.send("return print('Connection Established')")
 
     while True:
