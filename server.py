@@ -17,7 +17,7 @@ turtles = []
 turtle_counter = 0
 
 def get_turtles():
-    return turtles
+    return turtles[0]
 
 # handles a new connection
 async def handle_connect(websocket, path):
