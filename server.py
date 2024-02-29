@@ -41,7 +41,6 @@ async def handle_connect(websocket, path):
     while True:
         pass
 
-    turtles.remove(turtle_index)
     print("CLOSING SOCKET")
 
 
