@@ -1,3 +1,6 @@
+local VERSION = 0.1
+
+
 -- connect to the server
 ws, err = http.websocket("ws://rx-78-2:3000")
 
@@ -11,6 +14,10 @@ DISCONNECT_MESSAGE = "END-OF-LINE"
 function disconnect()
     ws.send(DISCONNECT_MESSAGE)
     ws.close()
+end
+
+function set_name(type, pyramid_pos, underling_count)
+    os.setComputerLabel("{type}.{pyramid_pos}-{underling_count}-{VERSION}")
 end
 
 -- checks if the connection failed
@@ -30,6 +37,6 @@ else
             command = loadstring(msg)
             response = command()
         end
-        ws.send("e")
+        ws.send(response)
     end
 end

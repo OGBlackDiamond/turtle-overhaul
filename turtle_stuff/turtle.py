@@ -6,7 +6,7 @@ Turtle naming convention:
 {type}.{pyramid position}-{number}-{revision}
 
 Type:
-    They type of turtle:
+    The type of turtle:
     
 M: Master - the first turtle, acts like an overlord
 O: Overlord - controls a subset of other turtles and largely handles incoming resources from the underlings
@@ -60,6 +60,7 @@ class Turtle:
             self.y = 0
             self.z = 0
             self.heading = 0
+            self.send("set_name(M, 0, 0)")
 
         else:
             self.x = parent.x
@@ -73,18 +74,23 @@ class Turtle:
 
 
     def main(self):
-        msg = self.recv()
 
-
-        if msg == DISCONNECT_MESSAGE:
-            return False
+        command = ""
 
         if (len(self.queue) > 0):
-            self.send(self.queue.pop(0))
+            command = self.queue.pop(0)
         else:
-            self.send("print(\"waiting for instructions\")")
+            command = "print(\"waiting for instructions\")"
 
+        self.send(command)
 
+        response = self.recv()
+
+        if response == DISCONNECT_MESSAGE:
+            return False
+
+        # checks if the turtle moved an updates its coordinates
+        self.handle_movement(command, response)
 
         return True
 
@@ -92,9 +98,9 @@ class Turtle:
         self.queue.append(instructions)
 
     # handles coordinate and heading updates when moving
-    def handle_movement(self, command):
+    def handle_movement(self, command, status):
 
-        if command == "turtle.forward()":
+        if command == "turtle.forward()" and status:
             if self.heading == 0:
                 self.z -= 1
             elif self.heading == 1:
@@ -104,7 +110,7 @@ class Turtle:
             elif self.heading == 3:
                 self.x -= 1
 
-        elif command == "turtle.back()":
+        elif command == "turtle.back()" and status:
             if self.heading == 0:
                 self.z += 1
             elif self.heading == 1:
@@ -113,10 +119,17 @@ class Turtle:
                 self.z -= 1
             elif self.heading == 3:
                 self.x += 1
-        elif command == "turtle.up()":
+        elif command == "turtle.up()" and status:
             self.y += 1
-        elif command == "turtle.down()":
+        elif command == "turtle.down()" and status:
             self.y -= 1;
+
+        # handles rotations
+        elif command == "turtle.turnRight()" and status:
+            self.heading += 1
+        elif command == "turtle.turnLeft()" and status:
+            self.heading -= 1
+
 
     async def send(self, message):
         await self.websocket.send(f"return {message}")
