@@ -51,7 +51,7 @@ west = 3
 
 class Turtle:
 
-    async def __init__(self, websocket, parent):
+    def __init__(self, websocket, parent):
         self.websocket = websocket
         self.queue = []
         self.parent = parent
@@ -61,7 +61,6 @@ class Turtle:
             self.y = 0
             self.z = 0
             self.heading = 0
-            await self.send("set_name(M, 0, 0)")
 
         else:
             self.x = parent.x
@@ -74,7 +73,7 @@ class Turtle:
                 self.heading -= 4
 
 
-    def main(self):
+    async def main(self):
 
         command = ""
 
@@ -83,9 +82,9 @@ class Turtle:
         else:
             command = "print(\"waiting for instructions\")"
 
-        self.send(command)
+        await self.send(command)
 
-        response = self.recv()
+        response = await self.recv()
 
         if response == DISCONNECT_MESSAGE:
             return False
@@ -137,3 +136,6 @@ class Turtle:
 
     async def recv(self):
         return await self.websocket.recv()
+
+    async def set_name(self):
+        await self.send("set_name(M, 0, 0)")
