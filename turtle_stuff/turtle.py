@@ -137,4 +137,4 @@ class Turtle:
         return await self.websocket.recv()
 
     async def set_name(self):
-        await self.send("set_name(M, 0, 0)")
+        await self.send("set_name(\"M\", \"0\", \"0\")")
