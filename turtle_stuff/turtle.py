@@ -1,3 +1,5 @@
+import json
+
 # sets the message that will indicate a disconnection 
 DISCONNECT_MESSAGE = "END-OF-LINE"
 
@@ -137,4 +139,4 @@ class Turtle:
         return await self.websocket.recv()
 
     async def set_name(self):
-        await self.send("set_name(\"M\", \"0\", \"0\")")
+        await self.websocket.send(["0", "0", "0"])
