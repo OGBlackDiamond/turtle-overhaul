@@ -139,6 +139,9 @@ class Turtle:
         return await self.websocket.recv()
 
     async def set_name(self):
+        # turtle type
+        await self.websocket.send("M")
+        # pyramid posision
         await self.websocket.send("0")
-        await self.websocket.send("0")
+        # underling count
         await self.websocket.send("0")

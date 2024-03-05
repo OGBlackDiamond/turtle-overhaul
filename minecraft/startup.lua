@@ -29,10 +29,10 @@ else
     -- sends the secondary handshake
     ws.send(TRUST_MESSAGE)
     ws.receive()
-    local 1 = ws.receive(5)
-    local 2 = ws.receive(5)
-    local 3 = ws.receive(5)
-    pcall(set_name, 1, 3, 3)
+    local a = ws.receive(5)
+    local b = ws.receive(5)
+    local c = ws.receive(5)
+    pcall(set_name, a, b, c)
 
     -- MAIN CODE
     while true do
