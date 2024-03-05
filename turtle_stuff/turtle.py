@@ -51,16 +51,17 @@ west = 3
 
 class Turtle:
 
-    def __init__(self, websocket, parent):
+    async def __init__(self, websocket, parent):
         self.websocket = websocket
         self.queue = []
+        self.parent = parent
 
-        if parent == None:
+        if self.parent == None:
             self.x = 0
             self.y = 0
             self.z = 0
             self.heading = 0
-            self.send("set_name(M, 0, 0)")
+            await self.send("set_name(M, 0, 0)")
 
         else:
             self.x = parent.x
