@@ -52,6 +52,7 @@ west = 3
 class Turtle:
 
     def __init__(self, websocket, parent):
+        self.connected = True;
         self.websocket = websocket
         self.queue = []
         self.parent = parent
@@ -87,12 +88,10 @@ class Turtle:
         response = await self.recv()
 
         if response == DISCONNECT_MESSAGE:
-            return False
+            self.connected = False
 
         # checks if the turtle moved an updates its coordinates
         self.handle_movement(command, response)
-
-        return True
 
     def queue(self, instructions):
         self.queue.append(instructions)

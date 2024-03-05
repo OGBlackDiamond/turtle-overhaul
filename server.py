@@ -38,10 +38,8 @@ async def handle_connect(websocket, path):
         await websocket.send("return print('Connection Established')")
         await turtle.websocket.send("set_name(M, 0, 0)")
         
-    while True:
-        disconnect = await turtle.main()[2]
-        if (not disconnect):
-            break
+    while turtle.connected:
+        pass
 
     print("CLOSING SOCKET")
 
