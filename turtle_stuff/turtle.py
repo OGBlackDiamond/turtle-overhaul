@@ -130,6 +130,8 @@ class Turtle:
             self.heading += 1
         elif command == "turtle.turnLeft()" and status:
             self.heading -= 1
+            
+        print(f"heading: {self.heading}\n")
 
 
     async def send(self, message):
