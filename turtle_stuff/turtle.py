@@ -64,6 +64,9 @@ class Turtle:
             self.y = 0
             self.z = 0
             self.heading = 0
+            self.type = "M"
+            self.pyd_pos = 0
+            self.ucount
 
         else:
             self.x = parent.x
@@ -130,8 +133,7 @@ class Turtle:
             self.heading += 1
         elif command == "turtle.turnLeft()" and status:
             self.heading -= 1
-            
-        print(f"heading: {self.heading}\n")
+
 
 
     async def send(self, message):
@@ -142,8 +144,8 @@ class Turtle:
 
     async def set_name(self):
         # turtle type
-        await self.websocket.send("M")
+        await self.websocket.send(self.type)
         # pyramid posision
-        await self.websocket.send("0")
+        await self.websocket.send(self.pyd_pos)
         # underling count
-        await self.websocket.send("0")
+        await self.websocket.send(self.ucount)
