@@ -17,7 +17,7 @@ function disconnect()
 end
 
 function set_name(type, pyramid_pos, underling_count)
-    os.setComputerLabel(string.format("{%s.%s-%s-%s", type, pyramid_pos, underling_count, VERSION))
+    os.setComputerLabel(string.format("%s.%s-%s-%s", type, pyramid_pos, underling_count, VERSION))
 end
 
 -- checks if the connection failed
@@ -28,8 +28,11 @@ else
 
     -- sends the secondary handshake
     ws.send(TRUST_MESSAGE)
-    local msg = ws.receive(5)
-    pcall(set_name, msg[0], msg[1], msg[2])
+    ws.receive()
+    local 1 = ws.receive(5)
+    local 2 = ws.receive(5)
+    local 3 = ws.receive(5)
+    pcall(set_name, 1, 3, 3)
 
     -- MAIN CODE
     while true do
