@@ -97,8 +97,6 @@ class Turtle:
 
     def queue_instruction(self, instructions):
         self.queue.append(instructions)
-        for inst in self.queue:
-            print(inst)
 
     # handles coordinate and heading updates when moving
     def handle_movement(self, command, status):

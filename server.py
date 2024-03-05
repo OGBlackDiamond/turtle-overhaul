@@ -40,7 +40,7 @@ async def handle_connect(websocket, path):
         await turtle.set_name()
 
     while turtle.connected:
-        pass
+        await turtle.main()
 
     print("CLOSING SOCKET")
 
