@@ -95,7 +95,7 @@ class Turtle:
         # checks if the turtle moved an updates its coordinates
         self.handle_movement(command, response)
 
-    def queue(self, instructions):
+    def queue_instruction(self, instructions):
         self.queue.append(instructions)
 
     # handles coordinate and heading updates when moving
