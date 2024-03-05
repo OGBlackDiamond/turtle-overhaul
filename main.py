@@ -8,5 +8,6 @@ def set_turtles(_turtles):
 
 def main():
     if len(turtles) > 0:
+        print("appending")
         turtles[0].turtle.queue_instruction("turtle.turnRight()")
         turtles[0].turtle.queue_instruction("turtle.turnLeft()")
