@@ -28,7 +28,7 @@ else
         local command = 0
         if msg ~= nil then
             command = loadstring(msg)
-            command()
+            response = command()
         end
         ws.send("e")
     end

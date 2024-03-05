@@ -2,7 +2,7 @@ import asyncio
 import websockets
 from turtle_stuff.turtle import Turtle
 from turtle_stuff.turt_object import Turt_Object
-import main as e
+import main as controller
 
 
 # identifies the port
@@ -16,9 +16,6 @@ TURTLE_MESSAGE = "Shake my hand bro"
 
 turtles = []
 turtle_counter = 0
-
-def get_turtles():
-    return turtles[0]
 
 # handles a new connection
 async def handle_connect(websocket, path):
@@ -35,11 +32,12 @@ async def handle_connect(websocket, path):
         print("Connection Established")
 
         turtle_index = 0
-        turtles.append(Turt_Object(Turtle(websocket), turtle_index))
-        await e.setTurtles(turtles)
+        turtle = Turtle(websocket, None)
+        turtles.append(Turt_Object(turtle, turtle_index))
+        await controller.set_turtles(turtles)
         await websocket.send("return print('Connection Established')")
 
-    while True:
+    while turtle.main():
         pass
 
     print("CLOSING SOCKET")

@@ -39,22 +39,87 @@ Example names w/ description
 "U.5-1-2.4" - An underling turtle, which has 6 turtles above it, 1 underling, running version 2.4 of the turtle code.
 """
 
+
+# heading numbers
+"""
+north = 0
+east = 1
+south = 2
+west = 3
+"""
+
+
 class Turtle:
 
-    def __init__(self, websocket):
+    def __init__(self, websocket, parent):
         self.websocket = websocket
+        self.queue = []
+
+        if parent == None:
+            self.x = 0
+            self.y = 0
+            self.z = 0
+            self.heading = 0
+
+        else:
+            self.x = parent.x
+            self.y = parent.y + 1
+            self.z = parent.z
+            self.heading = parent.heading + 2
+
+            # handles heading rollover on initialization
+            if self.heading > 3:
+                self.heading -= 4
 
 
     def main(self):
         msg = self.recv()
-        print(msg)
+
+
         if msg == DISCONNECT_MESSAGE:
             return False
-        self.send("return turtle.turnRight()")
+
+        if (len(self.queue) > 0):
+            self.send(self.queue.pop(0))
+        else:
+            self.send("print(\"waiting for instructions\")")
+
+
+
         return True
 
+    def queue(self, instructions):
+        self.queue.append(instructions)
+
+    # handles coordinate and heading updates when moving
+    def handle_movement(self, command):
+
+        if command == "turtle.forward()":
+            if self.heading == 0:
+                self.z -= 1
+            elif self.heading == 1:
+                self.x += 1
+            elif self.heading == 2:
+                self.z += 1
+            elif self.heading == 3:
+                self.x -= 1
+
+        elif command == "turtle.back()":
+            if self.heading == 0:
+                self.z += 1
+            elif self.heading == 1:
+                self.x -= 1
+            elif self.heading == 2:
+                self.z -= 1
+            elif self.heading == 3:
+                self.x += 1
+        elif command == "turtle.up()":
+            self.y += 1
+        elif command == "turtle.down()":
+            self.y -= 1;
+
     async def send(self, message):
-        await self.websocket.send(message)
+        await self.websocket.send(f"return {message}")
 
     async def recv(self):
         return await self.websocket.recv()
