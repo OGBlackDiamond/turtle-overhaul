@@ -19,9 +19,7 @@ end
 function apply_name()
 end
 -- sets the name of the turtle
-function get_name(name_data)
-    -- sets the turtle type
-    local name_data = ws.receive()
+function set_name(name_data)
     -- set the turtle name
     os.setComputerLabel(string.format("%s-%d", name_data, VERSION))
 end
@@ -43,7 +41,10 @@ else
     -- print the status of the handshake
     pcall(loadstring(ws.receive()))
 
-    get_name()
+
+    -- sets the turtle type
+    local name_data = ws.receive()
+    get_name(name_data)
 
 
     -- MAIN CODE
