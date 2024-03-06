@@ -41,8 +41,7 @@ else
     -- sends the secondary handshake
     ws.send(TRUST_MESSAGE)
     -- print the status of the handshake
-    shake_status = loadstring(ws.receive())
-    shake_status()
+    pcall(loadstring(ws.receive()))
 
     get_name()
 
