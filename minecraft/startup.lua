@@ -1,4 +1,4 @@
-VERSION = 0.1
+VERSION = 0.10
 
 -- connect to the server
 ws, err = http.websocket("ws://rx-78-2:3000")
@@ -18,7 +18,7 @@ end
 -- sets the name of the turtle
 function set_name(name_data)
     -- set the turtle name
-    os.setComputerLabel(string.format("%s-%d", name_data, VERSION))
+    os.setComputerLabel(string.format("%s-%.2f", name_data, VERSION))
 end
 
 -- spawn and boot up another turtle
