@@ -30,6 +30,7 @@ end
 function clone()
     shell.run("rm", "/disk/startup.lua")
     shell.run("wget", "https://raw.githubusercontent.com/OGBlackDiamond/turtle-overhaul/main/minecraft/startup.lua", "/disk/startup.lua")
+    shell.run("cp", "/disk/startup.lua", "/startup.lua")
 end
 
 -- checks if the connection failed
@@ -40,7 +41,8 @@ else
     -- sends the secondary handshake
     ws.send(TRUST_MESSAGE)
     -- print the status of the handshake
-    pcall(loadstring(ws.receive()))
+    shake_status = loadstring(ws.receive())
+    shake_status()
 
     get_name()
 
