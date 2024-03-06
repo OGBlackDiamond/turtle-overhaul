@@ -1,5 +1,3 @@
-import json
-
 # sets the message that will indicate a disconnection 
 DISCONNECT_MESSAGE = "END-OF-LINE"
 
@@ -66,17 +64,25 @@ class Turtle:
             self.heading = 0
             self.type = "M"
             self.pyd_pos = 0
-            self.ucount
 
         else:
-            self.x = parent.x
-            self.y = parent.y + 1
-            self.z = parent.z
-            self.heading = parent.heading + 2
+            self.heading = parent.heading
 
-            # handles heading rollover on initialization
-            if self.heading > 3:
-                self.heading -= 4
+            # correctly gives world coordinates based on heading
+            if self.heading == 0:
+                self.z = parent.z - 1
+            elif self.heading == 1:
+                self.x = parent.x + 1
+            elif self.heading == 2:
+                self.z = parent.z + 1
+            elif self.heading == 3:
+                self.x = parent.x - 1
+            self.y = parent.y + 1
+
+            self.type = "U"
+            self.pyd_pos = parent.pyd_pos + 1
+
+        self.ucount = 0
 
 
     async def main(self):
@@ -134,6 +140,11 @@ class Turtle:
         elif command == "turtle.turnLeft()" and status:
             self.heading -= 1
 
+        if self.heading > 3:
+            self.heading -= 4
+        elif self.heading < 0:
+            self.heading += 4
+
 
 
     async def send(self, message):
@@ -143,9 +154,5 @@ class Turtle:
         return await self.websocket.recv()
 
     async def set_name(self):
-        # turtle type
-        await self.websocket.send(self.type)
-        # pyramid posision
-        await self.websocket.send(self.pyd_pos)
-        # underling count
-        await self.websocket.send(self.ucount)
+        # sends formatted name data
+        await self.websocket.send(f"{self.type}.{self.pyd_pos}-{self.ucount}")

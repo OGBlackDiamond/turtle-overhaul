@@ -1,4 +1,4 @@
-VERSION = "0.1"
+VERSION = 0.1
 
 -- connect to the server
 ws, err = http.websocket("ws://rx-78-2:3000")
@@ -15,9 +15,15 @@ function disconnect()
     ws.close()
 end
 
+
+function apply_name()
+end
 -- sets the name of the turtle
-function set_name(type, pyramid_pos, underling_count)
-    os.setComputerLabel(string.format("%s.%s-%s-%s", type, pyramid_pos, underling_count, VERSION))
+function get_name(name_data)
+    -- sets the turtle type
+    local name_data = ws.receive()
+    -- set the turtle name
+    os.setComputerLabel(string.format("%s-%d", name_data, VERSION))
 end
 
 -- spawn and boot up another turtle
@@ -36,14 +42,8 @@ else
     -- print the status of the handshake
     pcall(loadstring(ws.receive()))
 
-    -- sets the turtle type
-    local type = ws.receive(5)
-    -- sets the turtle pyramid position
-    local pyd_pos = ws.receive(5)
-    -- sets the underling count
-    local ucount = ws.receive(5)
-    -- set the turtle name
-    pcall(set_name, type, pyd_pos, ucount)
+    get_name()
+
 
     -- MAIN CODE
     while true do
