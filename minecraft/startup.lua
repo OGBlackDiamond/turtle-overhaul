@@ -15,9 +15,6 @@ function disconnect()
     ws.close()
 end
 
-
-function apply_name()
-end
 -- sets the name of the turtle
 function set_name(name_data)
     -- set the turtle name
@@ -39,18 +36,18 @@ else
     -- sends the secondary handshake
     ws.send(TRUST_MESSAGE)
     -- print the status of the handshake
-    pcall(loadstring(ws.receive()))
-
+    shake_status = ws.receive()
+    pcall(loadstring(shake_status))
 
     -- sets the turtle type
     local name_data = ws.receive()
-    get_name(name_data)
+    set_name(name_data)
 
 
     -- MAIN CODE
     while true do
         local msg = ws.receive(5)
-        local command = 0
+        local response = nil
         if msg ~= nil then
             command = loadstring(msg)
             response = command()
