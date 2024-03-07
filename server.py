@@ -34,9 +34,14 @@ async def handle_connect(websocket, path):
 
         turtle_id = await websocket.recv()
         parent_id = await websocket.recv()
-        print(f"parent id = {parent_id}")
-        turtle = Turtle(websocket, None)
-        turtles.append(Turt_Object(turtle, turtle_id))
+        parent = None
+        if parent_id != "nil":
+            for turtle in turtles:
+                if turtle.gameID == parent_id:
+                    parent = turtle.turtle
+    
+        turtle = Turtle(websocket, parent)
+        turtles.append(Turt_Object(turtle, turtle_id, parent_id))
         controller.set_turtles(turtles)
         await turtle.set_name()
 

@@ -99,16 +99,12 @@ function websocket_start(turtleID, parentID)
         ws.send(turtleID)
         ws.send(parentID)
 
-        -- sets the turtle type
-        local name_data = ws.receive()
-        set_name(name_data)
-
 
         -- MAIN CODE
         while true do
             local data = ws.receive(5)
             local response = nil
-            if msg ~= nil then
+            if data ~= nil then
                 -- parses the data for its type and content
                 local data_type = string.sub(data, 1, 3)
                 local data_content = string.sub(data, 4)
@@ -132,17 +128,17 @@ function websocket_start(turtleID, parentID)
                 else
                     print("data did not use propper type formatting")
                 end
+
             end
             ws.send(response)
         end
     end
 end
 
-
-turtle.turnRight()
-turtle.turnRight()
-
 turtleID = os.getComputerID()
 parentID = peripheral.call("back", "getID")
+
+-- copies data to turtle
+shell.run("cp", "/disk/startup.lua", "/startup.lua")
 
 websocket_start(turtleID, parentID)
