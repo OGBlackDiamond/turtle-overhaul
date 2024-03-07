@@ -7,7 +7,7 @@ Turtle naming convention:
 
 Type:
     The type of turtle:
-    
+
 M: Master - the first turtle, acts like an overlord
 O: Overlord - controls a subset of other turtles and largely handles incoming resources from the underlings
 U: Underling - standard worker drone, the first underling a turtle creates should be equipped with the necessary ability to clone
@@ -55,6 +55,7 @@ class Turtle:
         self.connected = True;
         self.websocket = websocket
         self.queue = []
+        self.messages = []
         self.parent = parent
 
         if self.parent == None:
@@ -66,7 +67,7 @@ class Turtle:
             self.pyd_pos = 0
 
         else:
-            self.heading = parent.heading
+            self.heading = parent.heading + 2
 
             # correctly gives world coordinates based on heading
             if self.heading == 0:
@@ -94,7 +95,7 @@ class Turtle:
         else:
             command = "print(\"waiting for instructions\")"
 
-        await self.send(command)
+        await self.exec(command)
 
         response = await self.recv()
 
@@ -110,6 +111,7 @@ class Turtle:
     # handles coordinate and heading updates when moving
     def handle_movement(self, command, status):
 
+        # handles turtle forward movement
         if command == "turtle.forward()" and status:
             if self.heading == 0:
                 self.z -= 1
@@ -120,6 +122,7 @@ class Turtle:
             elif self.heading == 3:
                 self.x -= 1
 
+        # handles turtle reverse movement
         elif command == "turtle.back()" and status:
             if self.heading == 0:
                 self.z += 1
@@ -129,6 +132,8 @@ class Turtle:
                 self.z -= 1
             elif self.heading == 3:
                 self.x += 1
+
+        # handles turtle vertical movement
         elif command == "turtle.up()" and status:
             self.y += 1
         elif command == "turtle.down()" and status:
@@ -140,6 +145,7 @@ class Turtle:
         elif command == "turtle.turnLeft()" and status:
             self.heading -= 1
 
+        # handles rotation overflow
         if self.heading > 3:
             self.heading -= 4
         elif self.heading < 0:
@@ -147,12 +153,14 @@ class Turtle:
 
 
 
-    async def send(self, message):
-        await self.websocket.send(f"return {message}")
+    # handles message sending 
+    async def exec(self, message):
+        await self.websocket.send(f"[e]return {message}")
 
+    # handles incoming messages
     async def recv(self):
-        return await self.websocket.recv()
+        self.messages.append(await self.websocket.recv())
 
     async def set_name(self):
         # sends formatted name data
-        await self.websocket.send(f"{self.type}.{self.pyd_pos}-{self.ucount}")
+        await self.websocket.send(f"[n]{self.type}.{self.pyd_pos}-{self.ucount}")

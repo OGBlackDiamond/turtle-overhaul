@@ -12,7 +12,7 @@ PORT = "3000"
 HOST = "rx-78-2"
 
 # sets the trust message that essentially acts as a secondary handshake
-TURTLE_MESSAGE = "Shake my hand bro"
+TURTLE_MESSAGE = "shake-my-hand-bro"
 
 turtles = []
 turtle_counter = 0
@@ -32,9 +32,11 @@ async def handle_connect(websocket, path):
         print("Connection Established")
         await websocket.send("return print('Connection Established')")
 
-        turtle_index = 0
+        turtle_id = await websocket.recv()
+        parent_id = await websocket.recv()
+        print(f"parent id = {parent_id}")
         turtle = Turtle(websocket, None)
-        turtles.append(Turt_Object(turtle, turtle_index))
+        turtles.append(Turt_Object(turtle, turtle_id))
         controller.set_turtles(turtles)
         await turtle.set_name()
 

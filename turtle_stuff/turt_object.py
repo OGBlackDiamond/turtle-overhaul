@@ -1,5 +1,6 @@
 class Turt_Object:
     
-    def __init__(self, turtle, id):
+    def __init__(self, turtle, gameID, parentID):
         self.turtle = turtle
-        self.id = id
+        self.gameID = gameID
+        self.parentID = parentID
