@@ -73,6 +73,9 @@ function clone()
     -- turns it on
     peripheral.call("front", "turnOn")
 
+    -- waits for clone turtle to identify its parent
+    os.sleep(5)
+
     return step1 and step2 and step3 and step4 and step5
 end
 
@@ -97,9 +100,6 @@ function websocket_start(turtleID, parentID)
         -- sends the ingame IDs of the two turtles
         ws.send(turtleID)
         ws.send(parentID)
-
-        -- waits for clone turtle to identify its parent
-        os.sleep(5)
 
         -- MAIN CODE
         while true do
