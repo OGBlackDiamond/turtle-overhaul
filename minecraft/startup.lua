@@ -50,11 +50,11 @@ function clone()
     local step2 = turtle.drop()
 
     -- updates the boot file
-    shell.run("rm", "/disk/startup.lua")
-    local step3 = shell.run("wget", "https://raw.githubusercontent.com/OGBlackDiamond/turtle-overhaul/main/minecraft/startup.lua", "/disk/startup.lua")
+    shell.run("rm", "disk/startup.lua")
+    local step3 = shell.run("wget", "https://raw.githubusercontent.com/OGBlackDiamond/turtle-overhaul/main/minecraft/startup.lua", "disk/startup.lua")
 
     -- updates turtle
-    shell.run("cp", "/disk/startup.lua", "/startup.lua")
+    shell.run("cp", "disk/startup.lua", "startup.lua")
 
     -- moves the turtle up
     turtle.digUp()
