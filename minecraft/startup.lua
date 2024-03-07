@@ -49,6 +49,8 @@ function clone()
     turtle.select(getItemIndex("computercraft:disk"))
     local step2 = turtle.drop()
 
+    os.sleep(1)
+
     -- updates the boot file
     shell.run("rm", "disk/startup.lua")
     local step3 = shell.run("wget", "https://raw.githubusercontent.com/OGBlackDiamond/turtle-overhaul/main/minecraft/startup.lua", "disk/startup.lua")
@@ -70,9 +72,6 @@ function clone()
 
     -- turns it on
     peripheral.call("front", "turnOn")
-
-    -- waits for clone turtle to identify its parent
-    os.sleep(5)
 
     return step1 and step2 and step3 and step4 and step5
 end
@@ -99,6 +98,8 @@ function websocket_start(turtleID, parentID)
         ws.send(turtleID)
         ws.send(parentID)
 
+        -- waits for clone turtle to identify its parent
+        os.sleep(5)
 
         -- MAIN CODE
         while true do
