@@ -117,11 +117,11 @@ function websocket_start(turtleID, parentID)
                     response = command()
 
                 -- performs a clone
-                else if data == TYPE_CLONE then
+                elseif data == TYPE_CLONE then
                     response = clone()
 
                 -- sets the name to data_content
-                else if data_type == TYPE_NAME then
+                elseif data_type == TYPE_NAME then
                     set_name(data_content)
 
                 -- the message recieved did not have a recognizable type
