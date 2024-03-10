@@ -2,7 +2,7 @@ import asyncio
 import websockets
 from turtle_stuff.turtle import Turtle
 from turtle_stuff.turt_object import Turt_Object
-import main as controller
+import mcp
 
 
 # identifies the port
@@ -15,10 +15,9 @@ HOST = "rx-78-2"
 TURTLE_MESSAGE = "shake-my-hand-bro"
 
 turtles = []
-turtle_counter = 0
 
 # handles a new connection
-async def handle_connect(websocket, path):
+async def handle_connect(websocket):
     global turtles, turtle_counter
     print(f"CONNECTION RECIEVED @ {websocket.remote_address[0]}")
 
@@ -34,19 +33,40 @@ async def handle_connect(websocket, path):
 
         turtle_id = await websocket.recv()
         parent_id = await websocket.recv()
+        turtle = None
         parent = None
-        if parent_id != "nil":
-            for turtle in turtles:
-                if turtle.gameID == parent_id:
-                    parent = turtle.turtle
-    
-        turtle = Turtle(websocket, parent)
-        turtles.append(Turt_Object(turtle, turtle_id, parent_id))
-        controller.set_turtles(turtles)
-        await turtle.set_name()
 
-    while turtle.connected:
-        await turtle.main()
+        # makes sure tha parent id exists
+        if parent_id != "nil":
+
+            # a parentID of -1 indicates that this turtle needs to reconnect, and a new turtle class should not be created
+            if parent_id == -1:
+
+                 ### HANDLES TURTLE RECONNECTION ###
+
+                # loops through the list of turtles
+                for turtle in turtles:
+                    if turtle.gameID == turtle_id:
+                        turtle.turtle.websocket = websocket
+
+            else:
+
+                ### HANDLES INITIAL TURTLE CONNECTION ###
+
+                # loops through the list of turtles
+                for turtle in turtles:
+                    # assigns the parent turtle object based on the parentID
+                    if turtle.gameID == parent_id:
+                        parent = turtle
+
+                turtle = Turtle(websocket, parent)
+                turtles.append(Turt_Object(turtle, turtle_id, parent_id))
+                mcp.set_turtles(turtles)
+                await turtle.set_name()
+
+
+        while turtle.connected:
+            await turtle.main()
 
     print("CLOSING SOCKET")
 

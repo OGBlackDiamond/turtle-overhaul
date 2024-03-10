@@ -1,6 +1,16 @@
 # sets the message that will indicate a disconnection 
 DISCONNECT_MESSAGE = "END-OF-LINE"
 
+# defines data types used to identify outgoing data
+TYPE_EXEC = "[e]"
+TYPE_CLONE = "[c]"
+TYPE_NAME = "[n]"
+
+# defines data expressions for incoming data
+TRUE = "{T}"
+FALSE = "{F}"
+
+
 """
 Turtle naming convention:
 {type}.{pyramid position}-{number}-{revision}
@@ -40,7 +50,7 @@ Example names w/ description
 """
 
 
-# heading numbers
+# heading numbers for refrence
 """
 north = 0
 east = 1
@@ -67,7 +77,7 @@ class Turtle:
             self.pyd_pos = 0
 
         else:
-            self.heading = parent.heading + 2
+            self.heading = parent.heading
 
             # correctly gives world coordinates based on heading
             if self.heading == 0:
@@ -78,7 +88,7 @@ class Turtle:
                 self.z = parent.z + 1
             elif self.heading == 3:
                 self.x = parent.x - 1
-            self.y = parent.y + 1
+            self.y = parent.y
 
             self.type = "U"
             self.pyd_pos = parent.pyd_pos + 1
@@ -155,12 +165,20 @@ class Turtle:
 
     # handles message sending 
     async def exec(self, message):
-        await self.websocket.send(f"[e]return {message}")
+        await self.websocket.send(f"{TYPE_EXEC}return {message}")
 
     # handles incoming messages
     async def recv(self):
         self.messages.append(await self.websocket.recv())
 
+    # sends formatted name data
     async def set_name(self):
-        # sends formatted name data
-        await self.websocket.send(f"[n]{self.type}.{self.pyd_pos}-{self.ucount}")
+        await self.websocket.send(f"{TYPE_NAME}{self.type}.{self.pyd_pos}-{self.ucount}")
+
+    # sends the clone command
+    async def clone(self):
+        await self.websocket.send(TYPE_CLONE)
+        # checks if the cloning succeeded or not
+        if await self.websocket.recv() == TRUE:
+            self.ucount += 1
+            self.set_name()
