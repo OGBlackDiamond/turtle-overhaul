@@ -79,7 +79,7 @@ async def handle_connect(websocket):
 
 async def get_input():
     while True:
-        line = await aioconsole.ainput('Is this your line? ')
+        line = await aioconsole.ainput('->')
         if line == "stop":
             json_manager.dump_turtles(server_utils.get_turtles())
             asyncio.get_event_loop().stop()
