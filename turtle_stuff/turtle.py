@@ -61,40 +61,28 @@ west = 3
 
 class Turtle:
 
-    def __init__(self, websocket, parent):
+    def __init__(self, websocket, parent, json={}, is_recovering=False):
         self.connected = True;
         self.websocket = websocket
-        self.queue = []
-        self.messages = []
         self.parent = parent
 
-        if self.parent == None:
-            self.x = 0
-            self.y = 0
-            self.z = 0
-            self.heading = 0
-            self.type = "M"
-            self.pyd_pos = 0
+        # if this turtle is not recovering from json
+        if is_recovering == False:
+            self.queue = []
+            self.messages = []
 
+
+            if self.parent == None:
+                self.no_parent()
+
+            else:
+                self.parent()
+
+            self.ucount = 0
+
+        # turtle recovery from json
         else:
-            self.heading = parent.heading
-
-            # correctly gives world coordinates based on heading
-            if self.heading == 0:
-                self.z = parent.z - 1
-            elif self.heading == 1:
-                self.x = parent.x + 1
-            elif self.heading == 2:
-                self.z = parent.z + 1
-            elif self.heading == 3:
-                self.x = parent.x - 1
-            self.y = parent.y
-
-            self.type = "U"
-            self.pyd_pos = parent.pyd_pos + 1
-
-        self.ucount = 0
-
+           self.recover_from_json(json)
 
     async def main(self):
 
@@ -111,6 +99,7 @@ class Turtle:
 
         if response == DISCONNECT_MESSAGE:
             self.connected = False
+
 
         # checks if the turtle moved an updates its coordinates
         self.handle_movement(command, response)
@@ -163,6 +152,7 @@ class Turtle:
 
 
 
+
     # handles message sending 
     async def exec(self, message):
         await self.websocket.send(f"{TYPE_EXEC}return {message}")
@@ -182,3 +172,46 @@ class Turtle:
         if await self.websocket.recv() == TRUE:
             self.ucount += 1
             self.set_name()
+
+
+
+    def no_parent(self):
+        self.x = 0
+        self.y = 0
+        self.z = 0
+        self.heading = 0
+        self.type = "M"
+        self.pyd_pos = 0
+
+    def parent(self):
+        self.heading = self.parent.heading
+
+        # correctly gives world coordinates based on heading
+        if self.heading == 0:
+            self.z = self.parent.z - 1
+        elif self.heading == 1:
+            self.x = self.parent.x + 1
+        elif self.heading == 2:
+            self.z = self.parent.z + 1
+        elif self.heading == 3:
+            self.x = self.parent.x - 1
+        self.y = self.parent.y
+
+        self.type = "U"
+        self.pyd_pos = self.parent.pyd_pos + 1
+        
+    def recover_from_json(self, json):
+        self.x = json["coords"]["x"]
+        self.y = json["coords"]["y"]
+        self.z = json["coords"]["z"]
+
+        self.heading = json["heading"]
+
+        self.type = json["type"]
+
+        self.pyd_pos = json["pyd_pos"]
+
+        self.ucount = json["ucount"]
+
+        self.messages = json["io"]["messages"]
+        self.queue = json["io"]["queue"]

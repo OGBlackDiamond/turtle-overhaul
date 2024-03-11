@@ -115,8 +115,11 @@ function websocket_start(turtleID, parentID)
 
     -- MAIN CODE
     while true do
+        
         local data = ws.receive(5)
         local response = nil
+
+        -- won't do anything if the recv times out
         if data ~= nil then
             -- parses the data for its type and content
             local data_type = string.sub(data, 1, 3)
@@ -143,6 +146,7 @@ function websocket_start(turtleID, parentID)
             end
 
         end
+        -- send the response of the command back to the server
         ws.send(response)
     end
 end
@@ -156,13 +160,13 @@ turtle_name = os.getComputerLabel()
     it should check behind it for the turtle that spawned it and get it's ID.
 --]]
 if turtle_name == nil then
+    -- gets the parent id from behind the turtle
     parentID = peripheral.call("back", "getID")
+    -- copies data to turtle
+    shell.run("cp", "disk/startup.lua", "/startup.lua")
 else 
     -- if the name is set, we know it has connected, and it will be reconnected
     parentID = -1
 end
-
--- copies data to turtle
-shell.run("cp", "/disk/startup.lua", "/startup.lua")
 
 websocket_start(turtleID, parentID)

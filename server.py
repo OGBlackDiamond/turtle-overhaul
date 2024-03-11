@@ -2,7 +2,8 @@ import asyncio
 import websockets
 from turtle_stuff.turtle import Turtle
 from turtle_stuff.turt_object import Turt_Object
-import mcp
+from turtle_stuff import json_manager
+import server_utils
 
 
 # identifies the port
@@ -14,11 +15,11 @@ HOST = "rx-78-2"
 # sets the trust message that essentially acts as a secondary handshake
 TURTLE_MESSAGE = "shake-my-hand-bro"
 
-turtles = []
+
+turtles_json = json_manager.restore_turtles()
 
 # handles a new connection
 async def handle_connect(websocket):
-    global turtles, turtle_counter
     print(f"CONNECTION RECIEVED @ {websocket.remote_address[0]}")
 
     first_msg = await websocket.recv()
@@ -44,29 +45,41 @@ async def handle_connect(websocket):
 
                  ### HANDLES TURTLE RECONNECTION ###
 
-                # loops through the list of turtles
-                for turtle in turtles:
-                    if turtle.gameID == turtle_id:
-                        turtle.turtle.websocket = websocket
+                # attempt to recconnect the turtle ot it's websocket if it exists
+                recon = server_utils.set_websocket(websocket, turtle_id)
+
+                # if a turtle object doesn't exist, recover it from json
+                if not recon:
+                    turtle_json = turtles_json[f"turtle{turtle_id}"]
+
+                    neo_parent_id = turtle_json["parentID"]
+
+                    parent = server_utils.find_turtle(neo_parent_id)
+
+                    # wait for the parent to connect
+                    while parent == None:
+                        parent = server_utils.find_turtle(neo_parent_id)
+
+                    turtle = Turt_Object(websocket, parent, turtle_json, True)
+                    turtle_obj = Turt_Object(turtle, turtle_id, neo_parent_id)
+                    server_utils.add_turtle(turtle_obj)
 
             else:
 
                 ### HANDLES INITIAL TURTLE CONNECTION ###
 
-                # loops through the list of turtles
-                for turtle in turtles:
-                    # assigns the parent turtle object based on the parentID
-                    if turtle.gameID == parent_id:
-                        parent = turtle
+                parent = server_utils.find_turtle(parent_id)
 
                 turtle = Turtle(websocket, parent)
-                turtles.append(Turt_Object(turtle, turtle_id, parent_id))
-                mcp.set_turtles(turtles)
+                server_utils.add_turtle(Turt_Object(turtle, turtle_id, parent_id))
                 await turtle.set_name()
 
-
-        while turtle.connected:
-            await turtle.main()
+        try:
+            while turtle.connected:
+                await turtle.main()
+        except KeyboardInterrupt:
+            json_manager.dump_turtles(server_utils.get_turtles())
+            quit()
 
     print("CLOSING SOCKET")
 

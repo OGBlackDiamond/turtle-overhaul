@@ -1,0 +1,66 @@
+import json
+import os
+
+file = os.path.join(os.path.dirname(__file__), "json_dump.json")
+
+def dump_turtles(turtles):
+    turtle_json = {}
+
+    for turtle_obj in turtles:
+        # defines the turtle for easier typing
+        turtle = turtle_obj.turtle
+
+        turtle_dir = f"turtle{turtle_obj.gameID}"
+        turtle_json[turtle_dir] = {}
+
+        # defines a local directory in the json tree for easier typing
+        local_dir = turtle_json[turtle_dir]
+
+        # handles turtle and parent ids
+        local_dir["turtleID"] = turtle_obj.gameID
+        local_dir["parentID"] = turtle_obj.parentID
+
+        # handles coordinates
+        local_dir["coords"] = {}
+        local_dir["coords"]["x"] = turtle.x
+        local_dir["coords"]["y"] = turtle.y
+        local_dir["coords"]["z"] = turtle.z
+
+        # handles heading
+        local_dir["heading"] = turtle.heading
+
+        # handles type
+        local_dir["type"] = turtle.type
+
+        # handles pyramid position
+        local_dir["pyd_pos"] = turtle.pyd_pos
+
+        # handles underling count
+        local_dir["ucount"] = turtle.ucount
+
+        # handles io
+        local_dir["io"] = {}
+        local_dir["io"]["messages"] = []
+        local_dir["io"]["queue"] = []
+
+        # appends all messages
+        for message in turtle.messages:
+            local_dir["io"]["messages"].append(message)
+
+        # appends all commands in the queue
+        for command in turtle.queue:
+            local_dir["io"]["queue"].append(command)
+
+    with open(file, "w") as turtle_dump:
+        json.dump(turtle_json, turtle_dump, indent=4)
+        turtle_dump.close()
+
+def restore_turtles():
+    turtle_json = {}
+    if os.path.exists(file):
+        with open(file, "r") as json:
+            turtle_json = json
+            json.close()
+
+    return turtle_json
+
