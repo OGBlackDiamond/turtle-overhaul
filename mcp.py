@@ -1,12 +1,13 @@
-import server
+# this is the master contol program
+# it will handle all logic in the autonomous funciton of the turtle swarm
+class Master_Control_Program:
 
-turtles = []
+    def __init__(self):
+        self.turtles = []
 
-def set_turtles(_turtles):
-    global turtles
-    turtles = _turtles
+    def set_turtles(self, turtles):
+        self.turtles = turtles
 
-def main():
-    if len(turtles) > 0:
-        turtles[0].turtle.queue_instruction("turtle.turnRight()")
-        turtles[0].turtle.queue_instruction("turtle.turnLeft()")
+    def main(self):
+        while len(self.turtles) > 0:
+            pass

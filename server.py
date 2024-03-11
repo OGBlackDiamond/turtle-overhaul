@@ -1,6 +1,5 @@
 import asyncio
 import aioconsole
-import time
 import websockets
 from turtle_stuff.turtle import Turtle
 from turtle_stuff.turt_object import Turt_Object
@@ -71,12 +70,12 @@ async def handle_connect(websocket):
             server_utils.add_turtle(Turt_Object(turtle, turtle_id, parent_id))
             await turtle.set_name()
 
-
         while turtle.connected:
             await turtle.main()
 
     print("CLOSING SOCKET")
 
+# this will get user input asynchronously 
 async def get_input():
     while True:
         line = await aioconsole.ainput('->')
@@ -85,6 +84,9 @@ async def get_input():
             asyncio.get_event_loop().stop()
         elif line == "save":
             json_manager.dump_turtles(server_utils.get_turtles())
+        elif line == "stats":
+            print("SERVER STATISTICS")
+            print(f"Connected Turtles: {len(server_utils.get_turtles())}")
 
 def main():
     start_server = websockets.serve(handle_connect, HOST, PORT, ssl=None, compression=None)

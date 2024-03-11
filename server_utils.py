@@ -1,10 +1,13 @@
 import mcp
+from mcp import Master_Control_Program
 turtles = []
+
+master_control_program = Master_Control_Program()
 
 def add_turtle(turtle):
     global turtles
     turtles.append(turtle)
-    mcp.set_turtles(turtles)
+    master_control_program.set_turtles(turtles)
 
 # returns 
 def get_turtles():

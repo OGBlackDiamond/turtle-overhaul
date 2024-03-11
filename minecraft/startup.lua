@@ -1,5 +1,5 @@
 -- defines software version
-VERSION = 0.30
+VERSION = 0.35
 
 -- defines data types used to identify how incoming data should be interpreted
 TYPE_EXEC = "[e]"
@@ -115,7 +115,7 @@ function websocket_start(turtleID, parentID)
 
     -- MAIN CODE
     while true do
-        
+
         local data = ws.receive(5)
         local response = nil
 
