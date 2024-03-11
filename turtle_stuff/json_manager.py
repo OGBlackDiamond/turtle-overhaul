@@ -58,9 +58,9 @@ def dump_turtles(turtles):
 def restore_turtles():
     turtle_json = {}
     if os.path.exists(file):
-        with open(file, "r") as json:
-            turtle_json = json
-            json.close()
+        with open(file, "r") as json_file:
+            turtle_json = json.load(json_file)
+            json_file.close()
 
     return turtle_json
 

@@ -24,6 +24,6 @@ def set_websocket(websocket, id):
     for i in range(0, len(turtles)):
         if turtles[i].gameID == id:
             turtles[i].turtle.websocket = websocket
-            return True
+            return turtles[i]
 
-    return False
+    return None

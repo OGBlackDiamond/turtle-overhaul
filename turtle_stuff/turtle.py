@@ -76,7 +76,7 @@ class Turtle:
                 self.no_parent()
 
             else:
-                self.parent()
+                self.parent_exists()
 
             self.ucount = 0
 
@@ -159,6 +159,8 @@ class Turtle:
 
     # handles incoming messages
     async def recv(self):
+        if len(self.messages) > 5:
+            self.messages.pop(0)
         self.messages.append(await self.websocket.recv())
 
     # sends formatted name data
@@ -183,23 +185,27 @@ class Turtle:
         self.type = "M"
         self.pyd_pos = 0
 
-    def parent(self):
+    def parent_exists(self):
         self.heading = self.parent.heading
-
         # correctly gives world coordinates based on heading
         if self.heading == 0:
+            self.x = self.parent.x
             self.z = self.parent.z - 1
         elif self.heading == 1:
+            self.z = self.parent.z
             self.x = self.parent.x + 1
         elif self.heading == 2:
+            self.x = self.parent.x
             self.z = self.parent.z + 1
         elif self.heading == 3:
+            self.z = self.parent.z
             self.x = self.parent.x - 1
+
         self.y = self.parent.y
 
         self.type = "U"
         self.pyd_pos = self.parent.pyd_pos + 1
-        
+
     def recover_from_json(self, json):
         self.x = json["coords"]["x"]
         self.y = json["coords"]["y"]

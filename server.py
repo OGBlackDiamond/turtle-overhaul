@@ -1,4 +1,5 @@
 import asyncio
+import time
 import websockets
 from turtle_stuff.turtle import Turtle
 from turtle_stuff.turt_object import Turt_Object
@@ -37,49 +38,43 @@ async def handle_connect(websocket):
         turtle = None
         parent = None
 
-        # makes sure tha parent id exists
-        if parent_id != "nil":
+        # a parentID of -1 indicates that this turtle needs to reconnect, and a new turtle class should not be created
+        if parent_id == "-1":
+            ### HANDLES TURTLE RECONNECTION ###
 
-            # a parentID of -1 indicates that this turtle needs to reconnect, and a new turtle class should not be created
-            if parent_id == -1:
+            # attempt to recconnect the turtle ot it's websocket if it exists
+            turtle_obj = server_utils.set_websocket(websocket, turtle_id)
 
-                 ### HANDLES TURTLE RECONNECTION ###
+            # if a turtle object doesn't exist, recover it from json
+            if turtle_obj == None:
+                turtle_json = turtles_json[f"turtle{turtle_id}"]
 
-                # attempt to recconnect the turtle ot it's websocket if it exists
-                recon = server_utils.set_websocket(websocket, turtle_id)
+                neo_parent_id = turtle_json["parentID"]
 
-                # if a turtle object doesn't exist, recover it from json
-                if not recon:
-                    turtle_json = turtles_json[f"turtle{turtle_id}"]
+                parent = server_utils.find_turtle(neo_parent_id)
 
-                    neo_parent_id = turtle_json["parentID"]
-
-                    parent = server_utils.find_turtle(neo_parent_id)
-
-                    # wait for the parent to connect
-                    while parent == None:
-                        parent = server_utils.find_turtle(neo_parent_id)
-
-                    turtle = Turt_Object(websocket, parent, turtle_json, True)
-                    turtle_obj = Turt_Object(turtle, turtle_id, neo_parent_id)
-                    server_utils.add_turtle(turtle_obj)
-
+                turtle = Turtle(websocket, parent, turtle_json, True)
+                turtle_obj = Turt_Object(turtle, turtle_id, neo_parent_id)
+                server_utils.add_turtle(turtle_obj)
             else:
+                turtle = turtle_obj.turtle
+        else:
 
-                ### HANDLES INITIAL TURTLE CONNECTION ###
+            ### HANDLES INITIAL TURTLE CONNECTION ###
 
-                parent = server_utils.find_turtle(parent_id)
+            parent_obj = server_utils.find_turtle(parent_id)
 
-                turtle = Turtle(websocket, parent)
-                server_utils.add_turtle(Turt_Object(turtle, turtle_id, parent_id))
-                await turtle.set_name()
+            if parent_obj != None:
+                parent = parent_obj.turtle
 
-        try:
-            while turtle.connected:
-                await turtle.main()
-        except KeyboardInterrupt:
+            turtle = Turtle(websocket, parent)
+            server_utils.add_turtle(Turt_Object(turtle, turtle_id, parent_id))
+            await turtle.set_name()
             json_manager.dump_turtles(server_utils.get_turtles())
-            quit()
+
+
+        while turtle.connected:
+            await turtle.main()
 
     print("CLOSING SOCKET")
 
