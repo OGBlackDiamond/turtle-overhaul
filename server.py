@@ -1,6 +1,7 @@
 import asyncio
+import string
 import aioconsole
-import websockets
+import websockets.server
 from turtle_stuff.turtle import Turtle
 from turtle_stuff.turt_object import Turt_Object
 from turtle_stuff import json_manager
@@ -8,7 +9,7 @@ import server_utils
 
 
 # identifies the port
-PORT = "3000"
+PORT = 3000
 
 # identifies the hostname
 HOST = "rx-78-2"
@@ -32,8 +33,8 @@ async def handle_connect(websocket):
 
         turtle_id = await websocket.recv()
         parent_id = await websocket.recv()
-        turtle = None
-        parent = None
+        turtle:Turtle = None # type: ignore
+        parent:Turt_Object = None # type: ignore
 
         # a parentID of -1 indicates that this turtle needs to reconnect, and a new turtle class should not be created
         if parent_id == "-1":
@@ -89,7 +90,7 @@ async def get_input():
             print(f"Connected Turtles: {len(server_utils.get_turtles())}")
 
 def main():
-    start_server = websockets.serve(handle_connect, HOST, PORT, ssl=None, compression=None)
+    start_server = websockets.server.serve(handle_connect, HOST, PORT, ssl=None, compression=None)
     print("STARTING SERVER")
     asyncio.gather(
         start_server,

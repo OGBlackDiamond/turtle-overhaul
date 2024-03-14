@@ -1,3 +1,7 @@
+from websockets.sync.server import ServerConnection
+
+from turtle_stuff.turt_object import Turt_Object
+
 # sets the message that will indicate a disconnection 
 DISCONNECT_MESSAGE = "END-OF-LINE"
 
@@ -61,7 +65,30 @@ west = 3
 
 class Turtle:
 
-    def __init__(self, websocket, parent, json={}, is_recovering=False):
+    connected: bool
+    #websocket: ServerConnection
+    parent: Turt_Object
+
+    queue: list
+    messages: list
+
+    x: int
+    y: int
+    z: int
+
+    heading: int
+
+    type: str
+    pyd_pos: int
+    
+
+
+    def __init__(self, websocket: ServerConnection,
+                 parent: Turt_Object,
+                 json: dict={},
+                 is_recovering: bool=False
+                ):
+
         self.connected = True;
         self.websocket = websocket
         self.parent = parent
@@ -155,25 +182,25 @@ class Turtle:
 
     # handles message sending 
     async def exec(self, message):
-        await self.websocket.send(f"{TYPE_EXEC}return {message}")
+        await self.websocket.send(f"{TYPE_EXEC}return {message}") #type: ignore
 
     # handles incoming messages
     async def recv(self):
         if len(self.messages) > 5:
             self.messages.pop(0)
-        self.messages.append(await self.websocket.recv())
+        self.messages.append(await self.websocket.recv()) #type: ignore
 
     # sends formatted name data
     async def set_name(self):
-        await self.websocket.send(f"{TYPE_NAME}{self.type}.{self.pyd_pos}-{self.ucount}")
+        await self.websocket.send(f"{TYPE_NAME}{self.type}.{self.pyd_pos}-{self.ucount}") #type: ignore
 
     # sends the clone command
     async def clone(self):
-        await self.websocket.send(TYPE_CLONE)
+        await self.websocket.send(TYPE_CLONE) #type: ignore
         # checks if the cloning succeeded or not
-        if await self.websocket.recv() == TRUE:
+        if await self.websocket.recv() == TRUE: #type: ignore
             self.ucount += 1
-            self.set_name()
+            await self.set_name()
 
 
 
@@ -186,25 +213,25 @@ class Turtle:
         self.pyd_pos = 0
 
     def parent_exists(self):
-        self.heading = self.parent.heading
+        self.heading = self.parent.turtle.heading
         # correctly gives world coordinates based on heading
         if self.heading == 0:
-            self.x = self.parent.x
-            self.z = self.parent.z - 1
+            self.x = self.parent.turtle.x
+            self.z = self.parent.turtle.z - 1
         elif self.heading == 1:
-            self.z = self.parent.z
-            self.x = self.parent.x + 1
+            self.z = self.parent.turtle.z
+            self.x = self.parent.turtle.x + 1
         elif self.heading == 2:
-            self.x = self.parent.x
-            self.z = self.parent.z + 1
+            self.x = self.parent.turtle.x
+            self.z = self.parent.turtle.z + 1
         elif self.heading == 3:
-            self.z = self.parent.z
-            self.x = self.parent.x - 1
+            self.z = self.parent.turtle.z
+            self.x = self.parent.turtle.x - 1
 
-        self.y = self.parent.y
+        self.y = self.parent.turtle.y
 
         self.type = "U"
-        self.pyd_pos = self.parent.pyd_pos + 1
+        self.pyd_pos = self.parent.turtle.pyd_pos + 1
 
     def recover_from_json(self, json):
         self.x = json["coords"]["x"]
