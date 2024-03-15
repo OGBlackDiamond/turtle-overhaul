@@ -10,7 +10,7 @@ def add_turtle(turtle: Turt_Object):
     turtles.append(turtle)
     master_control_program.set_turtles(turtles)
 
-# returns 
+# returns the array of turtles
 def get_turtles():
     return turtles
 

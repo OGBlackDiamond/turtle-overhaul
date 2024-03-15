@@ -2,6 +2,7 @@ import asyncio
 import string
 import aioconsole
 import websockets.server
+from websockets.sync.server import ServerConnection
 from turtle_stuff.turtle import Turtle
 from turtle_stuff.turt_object import Turt_Object
 from turtle_stuff import json_manager
@@ -18,21 +19,21 @@ HOST = "rx-78-2"
 TURTLE_MESSAGE = "shake-my-hand-bro"
 
 # handles a new connection
-async def handle_connect(websocket):
+async def handle_connect(websocket: ServerConnection):
     print(f"CONNECTION RECIEVED @ {websocket.remote_address[0]}")
 
-    first_msg = await websocket.recv()
+    first_msg = await websocket.recv() # type: ignore
 
     if first_msg != TURTLE_MESSAGE:
         print("Connection Refused")
-        await websocket.send("return print('Connection Refused')")
-        await websocket.close()
+        await websocket.send("return print('Connection Refused')") # type: ignore
+        await websocket.close() # type: ignore
     else:
         print("Connection Established")
-        await websocket.send("return print('Connection Established')")
+        await websocket.send("return print('Connection Established')") # type: ignore
 
-        turtle_id = await websocket.recv()
-        parent_id = await websocket.recv()
+        turtle_id = await websocket.recv() # type: ignore
+        parent_id = await websocket.recv() # type: ignore
         turtle:Turtle = None # type: ignore
         parent:Turt_Object = None # type: ignore
 
@@ -90,7 +91,7 @@ async def get_input():
             print(f"Connected Turtles: {len(server_utils.get_turtles())}")
 
 def main():
-    start_server = websockets.server.serve(handle_connect, HOST, PORT, ssl=None, compression=None)
+    start_server = websockets.server.serve(handle_connect, HOST, PORT, ssl=None, compression=None) # type: ignore
     print("STARTING SERVER")
     asyncio.gather(
         start_server,
