@@ -130,11 +130,11 @@ function websocket_start(turtleID, parentID)
             -- executes the command in data_content
             if data_type == TYPE_EXEC then
                 command = loadstring(data_content)
-                response = command()
+                status, return_data = command()
 
             -- performs a clone
             elseif data == TYPE_CLONE then
-                response = clone()
+                status = clone()
 
             -- sets the name to data_content
             elseif data_type == TYPE_NAME then
@@ -146,8 +146,18 @@ function websocket_start(turtleID, parentID)
             end
 
         end
+
+        -- variable that will store the string type for the received message
+        local res_status
+
         -- send the response of the command back to the server
-        ws.send(response)
+        if status == true then
+            res_stat = TRUE
+        elseif status == false then
+            res_stat = FALSE
+        end
+
+        ws.send(string.format("%s%s", res_stat, return_data))
     end
 end
 

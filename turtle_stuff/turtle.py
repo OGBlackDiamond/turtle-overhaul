@@ -1,6 +1,6 @@
 from websockets.sync.server import ServerConnection
 
-from turtle_stuff.turt_object import Turt_Object
+from turtle_stuff.turtle import Turtle
 
 # sets the message that will indicate a disconnection 
 DISCONNECT_MESSAGE = "END-OF-LINE"
@@ -9,6 +9,8 @@ DISCONNECT_MESSAGE = "END-OF-LINE"
 TYPE_EXEC = "[e]"
 TYPE_CLONE = "[c]"
 TYPE_NAME = "[n]"
+
+
 
 # defines data expressions for incoming data
 TRUE = "{T}"
@@ -66,8 +68,11 @@ west = 3
 class Turtle:
 
     connected: bool
-    #websocket: ServerConnection
-    parent: Turt_Object
+    websocket: ServerConnection
+    parent: Turtle
+
+    gameID: int
+    parentID: int
 
     queue: list
     messages: list
@@ -80,28 +85,36 @@ class Turtle:
 
     type: str
     pyd_pos: int
-    
+
 
 
     def __init__(self, websocket: ServerConnection,
-                 parent: Turt_Object,
+                 parent: Turtle,
+                 gameID: int,
+                 parentID: int,
                  json: dict={},
                  is_recovering: bool=False
                 ):
 
+        # the connection satatus of the turtle, its websocket, and parent object
         self.connected = True;
         self.websocket = websocket
         self.parent = parent
+
+        # the in-game id's of the turtle and it's parent
+        self.gameID = gameID
+        self.parentID = parentID
 
         # if this turtle is not recovering from json
         if is_recovering == False:
             self.queue = []
             self.messages = []
 
-
+            # this turtle has no parent, it will be the master turtle
             if self.parent == None:
-                self.no_parent()
+                self.start_master()
 
+            # a parent turtle exists, it's telemetry will be translated to it
             else:
                 self.parent_exists()
 
@@ -113,7 +126,7 @@ class Turtle:
 
     async def main(self):
 
-        command = ""
+        command: str
 
         if (len(self.queue) > 0):
             command = self.queue.pop(0)
@@ -186,9 +199,17 @@ class Turtle:
 
     # handles incoming messages
     async def recv(self):
+        # clears out message data so that there are only 5 messages in the list at a time
         if len(self.messages) > 5:
             self.messages.pop(0)
-        self.messages.append(await self.websocket.recv()) #type: ignore
+
+        data = await self.websocket.recv() #type: ignore
+
+        # parses the message for its status and data
+        status = data[:3]
+        content = data[3:]
+
+        self.messages.append(Message(status, content)) 
 
     # sends formatted name data
     async def set_name(self):
@@ -204,7 +225,7 @@ class Turtle:
 
 
 
-    def no_parent(self):
+    def start_master(self):
         self.x = 0
         self.y = 0
         self.z = 0
@@ -213,25 +234,25 @@ class Turtle:
         self.pyd_pos = 0
 
     def parent_exists(self):
-        self.heading = self.parent.turtle.heading
+        self.heading = self.parent.heading
         # correctly gives world coordinates based on heading
         if self.heading == 0:
-            self.x = self.parent.turtle.x
-            self.z = self.parent.turtle.z - 1
+            self.x = self.parent.x
+            self.z = self.parent.z - 1
         elif self.heading == 1:
-            self.z = self.parent.turtle.z
-            self.x = self.parent.turtle.x + 1
+            self.z = self.parent.z
+            self.x = self.parent.x + 1
         elif self.heading == 2:
-            self.x = self.parent.turtle.x
-            self.z = self.parent.turtle.z + 1
+            self.x = self.parent.x
+            self.z = self.parent.z + 1
         elif self.heading == 3:
-            self.z = self.parent.turtle.z
-            self.x = self.parent.turtle.x - 1
+            self.z = self.parent.z
+            self.x = self.parent.x - 1
 
-        self.y = self.parent.turtle.y
+        self.y = self.parent.y
 
         self.type = "U"
-        self.pyd_pos = self.parent.turtle.pyd_pos + 1
+        self.pyd_pos = self.parent.pyd_pos + 1
 
     def recover_from_json(self, json):
         self.x = json["coords"]["x"]
@@ -246,5 +267,18 @@ class Turtle:
 
         self.ucount = json["ucount"]
 
-        self.messages = json["io"]["messages"]
+        i = 0
+        for stats in json["io"]["messages"]:
+            self.messages.append(Message(stats["stats"][i], stats["content"][i]))
+            i += 1
+
         self.queue = json["io"]["queue"]
+
+class Message:
+
+    status: str
+    data: str
+
+    def __init__(self, status:str, data:str):
+        self.status = status
+        self.str = str

@@ -6,19 +6,17 @@ file = os.path.join(os.path.dirname(__file__), "json_dump.json")
 def dump_turtles(turtles):
     turtle_json = {}
 
-    for turtle_obj in turtles:
-        # defines the turtle for easier typing
-        turtle = turtle_obj.turtle
+    for turtle in turtles:
 
-        turtle_dir = f"turtle{turtle_obj.gameID}"
+        turtle_dir = f"turtle{turtle.gameID}"
         turtle_json[turtle_dir] = {}
 
         # defines a local directory in the json tree for easier typing
         local_dir = turtle_json[turtle_dir]
 
         # handles turtle and parent ids
-        local_dir["turtleID"] = turtle_obj.gameID
-        local_dir["parentID"] = turtle_obj.parentID
+        local_dir["turtleID"] = turtle.gameID
+        local_dir["parentID"] = turtle.parentID
 
         # handles coordinates
         local_dir["coords"] = {}
@@ -40,12 +38,15 @@ def dump_turtles(turtles):
 
         # handles io
         local_dir["io"] = {}
-        local_dir["io"]["messages"] = []
+        local_dir["io"]["messages"] = {}
+        local_dir["io"]["messages"]["status"] = []
+        local_dir["io"]["messages"]["content"] = []
         local_dir["io"]["queue"] = []
 
         # appends all messages
         for message in turtle.messages:
-            local_dir["io"]["messages"].append(message)
+            local_dir["io"]["messages"]["status"] = message.status
+            local_dir["io"]["messages"]["content"].append(message.content)
 
         # appends all commands in the queue
         for command in turtle.queue:

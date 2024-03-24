@@ -1,8 +1,10 @@
-class Test:
-    def test(self):
-        self.e = "hi"
-        
-t = Test()
-t.test()
+e = {
+    "status": [
+    ]
+}
 
-print(t.e)
+
+e["status"].append("1")
+
+print(e["status"][0])
+
