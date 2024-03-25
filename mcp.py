@@ -1,6 +1,9 @@
-# this is the master contol program
-# it will handle all logic in the autonomous funciton of the turtle swarm
+from turtle_stuff.turtle import Turtle
+
+# this will handle all logic in the autonomous funciton of the turtle swarm
 class Master_Control_Program:
+
+    turtles: list[Turtle]
 
     def __init__(self):
         self.turtles = []

@@ -65,6 +65,16 @@ west = 3
 """
 
 
+class Message:
+
+    status: str
+    data: str
+
+    def __init__(self, status:str, data:str):
+        self.status = status
+        self.data = data
+
+
 class Turtle:
 
     connected: bool
@@ -74,8 +84,8 @@ class Turtle:
     gameID: int
     parentID: int
 
-    queue: list
-    messages: list
+    queue: list[str]
+    messages: list[Message]
 
     x: int
     y: int
@@ -273,12 +283,3 @@ class Turtle:
             i += 1
 
         self.queue = json["io"]["queue"]
-
-class Message:
-
-    status: str
-    data: str
-
-    def __init__(self, status:str, data:str):
-        self.status = status
-        self.str = str
