@@ -132,6 +132,10 @@ function websocket_start(turtleID, parentID)
                 command = loadstring(data_content)
                 status, return_data = command()
 
+                if data_content == "return turtle.inspect()" or data_content == "return turtle.inspectUp()" or data_content == "return turtle.inspectDown()" then
+                    return_data = return_data["name"]
+                end
+
             -- performs a clone
             elseif data == TYPE_CLONE then
                 status = clone()

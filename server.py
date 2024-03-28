@@ -1,11 +1,10 @@
 import asyncio
-import socket
-import string
 import aioconsole
 import websockets.server
 from websockets.sync.server import ServerConnection
 from turtle_stuff.turtle import Turtle
 from turtle_stuff import json_manager
+from mcp import Master_Control_Program
 import server_utils
 
 
@@ -17,6 +16,8 @@ HOST = "rx-78-2"
 
 # sets the trust message that essentially acts as a secondary handshake
 TURTLE_MESSAGE = "shake-my-hand-bro"
+
+mcp = Master_Control_Program()
 
 # handles a new connection
 async def handle_connect(websocket: ServerConnection):
@@ -38,7 +39,7 @@ async def handle_connect(websocket: ServerConnection):
         turtle_id = await websocket.recv() # type: ignore
         parent_id = await websocket.recv() # type: ignore
         turtle:Turtle = None # type: ignore
-        parent:Turt_Object = None # type: ignore
+        parent:Turtle = None # type: ignore
 
         # a parentID of -1 indicates that this turtle needs to reconnect, and a new turtle class should not be created, except from json
         if parent_id == "-1":
@@ -91,6 +92,10 @@ async def console():
             print("SERVER STATISTICS")
             print(f"Connected Turtles: {len(server_utils.get_turtles())}")
 
+async def controller():
+    while True:
+        mcp.main()
+
 # the main function that will start the server and console
 def main():
     start_server = websockets.server.serve(handle_connect, HOST, PORT, ssl=None, compression=None) # type: ignore
@@ -98,6 +103,7 @@ def main():
     asyncio.gather(
         start_server,
         console(),
+        controller()
     )
 
     asyncio.get_event_loop().run_forever()

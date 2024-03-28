@@ -1,7 +1,5 @@
 from websockets.sync.server import ServerConnection
 
-from turtle_stuff.turtle import Turtle
-
 # sets the message that will indicate a disconnection 
 DISCONNECT_MESSAGE = "END-OF-LINE"
 
@@ -79,7 +77,6 @@ class Turtle:
 
     connected: bool
     websocket: ServerConnection
-    parent: Turtle
 
     gameID: int
     parentID: int
@@ -99,7 +96,7 @@ class Turtle:
 
 
     def __init__(self, websocket: ServerConnection,
-                 parent: Turtle,
+                 parent,
                  gameID: int,
                  parentID: int,
                  json: dict={},
@@ -200,9 +197,6 @@ class Turtle:
         elif self.heading < 0:
             self.heading += 4
 
-
-
-
     # handles message sending 
     async def exec(self, message):
         await self.websocket.send(f"{TYPE_EXEC}return {message}") #type: ignore
@@ -211,15 +205,26 @@ class Turtle:
     async def recv(self):
         # clears out message data so that there are only 5 messages in the list at a time
         if len(self.messages) > 5:
-            self.messages.pop(0)
+            self.messages.pop()
 
         data = await self.websocket.recv() #type: ignore
 
         # parses the message for its status and data
         status = data[:3]
+        if status == TRUE:
+            status = True
+        else:
+            status = False
         content = data[3:]
 
-        self.messages.append(Message(status, content)) 
+        self.messages.insert(0, Message(status, content)) 
+
+    def get_message(self, index=0):
+        return self.messages[index]
+    
+    def get_queue_length(self):
+        return len(self.queue)
+
 
     # sends formatted name data
     async def set_name(self):
@@ -234,6 +239,8 @@ class Turtle:
             await self.set_name()
 
 
+
+    # constructor types
 
     def start_master(self):
         self.x = 0
