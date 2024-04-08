@@ -1,15 +1,11 @@
 from websockets.sync.server import ServerConnection
-from mcp import Master_Control_Program
 from turtle_stuff.turtle import Turtle
 turtles = []
-
-master_control_program = Master_Control_Program()
 
 # adds a turtle to the array
 def add_turtle(turtle: Turtle):
     global turtles
     turtles.append(turtle)
-    master_control_program.set_turtles(turtles)
 
 # returns the array of turtles
 def get_turtles() -> list[Turtle]:

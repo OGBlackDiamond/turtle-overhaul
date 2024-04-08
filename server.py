@@ -61,15 +61,16 @@ async def handle_connect(websocket: ServerConnection):
 
                 turtle = Turtle(websocket, parent, turtle_id, neo_parent_id, turtle_json, True)
                 server_utils.add_turtle(turtle)
+                mcp.add_turtle(turtle)
 
         else:
 
             ### HANDLES INITIAL TURTLE CONNECTION ###
 
             parent = server_utils.find_turtle(parent_id)
-
-            turtle = Turtle(websocket, parent, turtle_id, parent.gameID)
+            turtle = Turtle(websocket, parent, turtle_id)
             server_utils.add_turtle(turtle)
+            mcp.add_turtle(turtle)
             await turtle.set_name()
 
         while turtle.connected:
@@ -79,7 +80,7 @@ async def handle_connect(websocket: ServerConnection):
         websocket.close()
     print("CLOSING SOCKET")
 
-# this will get user input asynchronously 
+# this will get user input asynchronously
 async def console():
     while True:
         line = await aioconsole.ainput('->')
@@ -92,18 +93,19 @@ async def console():
             print("SERVER STATISTICS")
             print(f"Connected Turtles: {len(server_utils.get_turtles())}")
 
-async def controller():
+async def test():
     while True:
         mcp.main()
+        await asyncio.sleep(0.125)
 
 # the main function that will start the server and console
 def main():
     start_server = websockets.server.serve(handle_connect, HOST, PORT, ssl=None, compression=None) # type: ignore
     print("STARTING SERVER")
     asyncio.gather(
-        start_server,
         console(),
-        controller()
+        test()
     )
 
+    asyncio.get_event_loop().run_until_complete(start_server)
     asyncio.get_event_loop().run_forever()

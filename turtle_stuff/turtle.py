@@ -1,4 +1,5 @@
 from websockets.sync.server import ServerConnection
+import asyncio
 
 # sets the message that will indicate a disconnection 
 DISCONNECT_MESSAGE = "END-OF-LINE"
@@ -98,7 +99,7 @@ class Turtle:
     def __init__(self, websocket: ServerConnection,
                  parent,
                  gameID: int,
-                 parentID: int,
+                 parentID: int=-1,
                  json: dict={},
                  is_recovering: bool=False
                 ):
@@ -112,10 +113,11 @@ class Turtle:
         self.gameID = gameID
         self.parentID = parentID
 
+        self.queue = []
+        self.messages = []
+
         # if this turtle is not recovering from json
         if is_recovering == False:
-            self.queue = []
-            self.messages = []
 
             # this turtle has no parent, it will be the master turtle
             if self.parent == None:
@@ -151,6 +153,8 @@ class Turtle:
         # checks if the turtle moved an updates its coordinates
         self.handle_movement(command, response)
 
+        await asyncio.sleep(0.25)
+
     def queue_instruction(self, instructions):
         self.queue.append(instructions)
 
@@ -158,7 +162,7 @@ class Turtle:
     def handle_movement(self, command, status):
 
         # handles turtle forward movement
-        if command == "turtle.forward()" and status:
+        if command == "turtle.forward()":
             if self.heading == 0:
                 self.z -= 1
             elif self.heading == 1:
@@ -169,7 +173,7 @@ class Turtle:
                 self.x -= 1
 
         # handles turtle reverse movement
-        elif command == "turtle.back()" and status:
+        elif command == "turtle.back()":
             if self.heading == 0:
                 self.z += 1
             elif self.heading == 1:
@@ -180,15 +184,15 @@ class Turtle:
                 self.x += 1
 
         # handles turtle vertical movement
-        elif command == "turtle.up()" and status:
+        elif command == "turtle.up()":
             self.y += 1
-        elif command == "turtle.down()" and status:
+        elif command == "turtle.down()":
             self.y -= 1;
 
         # handles rotations
-        elif command == "turtle.turnRight()" and status:
+        elif command == "turtle.turnRight()":
             self.heading += 1
-        elif command == "turtle.turnLeft()" and status:
+        elif command == "turtle.turnLeft()":
             self.heading -= 1
 
         # handles rotation overflow
@@ -221,7 +225,7 @@ class Turtle:
 
     def get_message(self, index=0):
         return self.messages[index]
-    
+
     def get_queue_length(self):
         return len(self.queue)
 
