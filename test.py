@@ -2,15 +2,15 @@
 # import time
 
 world = {
-    1: {
-        2: {
-            3: "wef"
+    "1": {
+        "2": {
+            "3": "wef"
         }
     }
 }
 
 # world[1][3] = world[1].get(3,{2: "unknown"})
-world[1][2][4] = world[1][2].get(4, "unknown")
+#world[1][2][4] = world[1][2].get(4, "unknown")
 
 print(world)
 # time.sleep(1)
