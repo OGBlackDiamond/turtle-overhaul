@@ -206,7 +206,7 @@ function websocket_start(turtleID, parentID)
             turtle.getFuelLevel(),
             inspectBlock("Up"),
             inspectBlock(),
-            inspectBlock("Down"),
+            inspectBlock("Down")
         )
 
         -- appends each inventory slot to the json package
