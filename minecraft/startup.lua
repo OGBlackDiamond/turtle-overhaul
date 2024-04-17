@@ -1,5 +1,5 @@
 -- defines software version
-VERSION = 0.35
+VERSION = 0.5
 
 -- defines data types used to identify how incoming data should be interpreted
 TYPE_EXEC = "[e]"
@@ -32,6 +32,33 @@ function getItemIndex(itemName)
 			end
 		end
 	end
+end
+
+-- returns two arrays, one with the names of each block, and one with the count
+function getInventory()
+    local names = {}
+    local counts = {}
+
+    for slot = 1, 16, 1 do
+        local item = turtle.getItemDetail(slot)
+        if (item ~= nil) then
+            names[slot] = item["name"]
+            counts[slot] = item["count"]
+        else
+            names[slot] = nil
+            counts[slot] = -1
+        end
+    end
+
+    return names, counts
+end
+
+-- returns the name of the block in the inspected direction, nil if there is no block
+function inspectBlock(direction)
+    local direction = direction or ""
+    command = loadstring(string.format("return turtle.inspect%s()", direction))
+    local stat, name = command()
+    return name["name"]
 end
 
 -- sets the name of the turtle
@@ -99,6 +126,7 @@ function websocket_start(turtleID, parentID)
     -- connect to the server
     repeat
         print("attempting websocket connection")
+        sleep(2)
         ws, err = http.websocket("ws://rx-78-2:3000")
     until ws ~= false
 
@@ -116,6 +144,7 @@ function websocket_start(turtleID, parentID)
     -- MAIN CODE
     while true do
 
+        -- gets a message from the server and setds a defualt response value
         local data = ws.receive(5)
         local response = nil
 
@@ -131,10 +160,6 @@ function websocket_start(turtleID, parentID)
             if data_type == TYPE_EXEC then
                 command = loadstring(data_content)
                 status, return_data = command()
-
-                if data_content == "return turtle.inspect()" or data_content == "return turtle.inspectUp()" or data_content == "return turtle.inspectDown()" then
-                    return_data = return_data["name"]
-                end
 
             -- performs a clone
             elseif data == TYPE_CLONE then
@@ -154,14 +179,44 @@ function websocket_start(turtleID, parentID)
         -- variable that will store the string type for the received message
         local res_status
 
-        -- send the response of the command back to the server
+        -- send the response of the command into something the server can read
         if status == true then
             res_stat = TRUE
         elseif status == false then
             res_stat = FALSE
         end
 
-        ws.send(string.format("%s%s", res_stat, return_data))
+        -- gets the names and counts of the inveneto
+        local inv_names, inv_counts = getInventory()
+
+        -- compiles the static data being sent to the server in a payload
+        local payload = string.format([[
+            {
+                "return": {
+                    "status": %s, 
+                    "data": %s
+                },
+                "fuel": %d,
+                "up": %s,
+                "front": %s,
+                "down": %s,
+                "inventory": {]],
+            res_stat,
+            return_data,
+            turtle.getFuelLevel(),
+            inspectBlock("Up"),
+            inspectBlock(),
+            inspectBlock("Down"),
+        )
+
+        -- appends each inventory slot to the json package
+        for i = 1, 16, 1 do
+            payload = payload .. string.format('\n\t\tslot%d: {"name": %s, "count": %d}', i, inv_names[i], inv_counts[i]) .. (i ~= 16 and "," or "\n\t}") 
+        end
+        payload = payload .. "\n}"
+
+        -- sends the string-like json to the server
+        ws.send(payload)
     end
 end
 
@@ -183,4 +238,5 @@ else
     parentID = -1
 end
 
+-- start the websocket
 websocket_start(turtleID, parentID)

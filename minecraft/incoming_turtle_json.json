@@ -1,0 +1,29 @@
+{
+    "return": {
+        "status": "",
+        "data": ""
+    },
+    "fuel": -1,
+    "up": "",
+    "front": "",
+    "down": "",
+    "inventory": {
+        "slot1": {"name": "", "count": -1},
+        "slot2": {"name": "", "count": -1},
+        "slot3": {"name": "", "count": -1},
+        "slot4": {"name": "", "count": -1},
+        "slot5": {"name": "", "count": -1},
+        "slot6": {"name": "", "count": -1},
+        "slot7": {"name": "", "count": -1},
+        "slot8": {"name": "", "count": -1},
+        "slot9": {"name": "", "count": -1},
+        "slot10": {"name": "", "count": -1},
+        "slot11": {"name": "", "count": -1},
+        "slot12": {"name": "", "count": -1},
+        "slot13": {"name": "", "count": -1},
+        "slot14": {"name": "", "count": -1},
+        "slot15": {"name": "", "count": -1},
+        "slot16": {"name": "", "count": -1}
+    }
+}
+

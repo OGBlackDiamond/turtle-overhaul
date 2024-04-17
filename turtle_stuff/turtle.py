@@ -1,5 +1,6 @@
 from websockets.sync.server import ServerConnection
 import asyncio
+import json
 
 # sets the message that will indicate a disconnection 
 DISCONNECT_MESSAGE = "END-OF-LINE"
@@ -8,7 +9,6 @@ DISCONNECT_MESSAGE = "END-OF-LINE"
 TYPE_EXEC = "[e]"
 TYPE_CLONE = "[c]"
 TYPE_NAME = "[n]"
-
 
 
 # defines data expressions for incoming data
@@ -137,30 +137,52 @@ class Turtle:
 
         command: str
 
-        if (len(self.queue) > 0):
+        if len(self.queue) > 0:
+            # gets the next command to execute from the stack
             command = self.queue.pop(0)
-        else:
-            command = "print(\"waiting for instructions\")"
 
-        await self.exec(command)
-
-        response = await self.recv()
-
-        if response == DISCONNECT_MESSAGE:
-            self.connected = False
-
-
-        # checks if the turtle moved an updates its coordinates
-        self.handle_movement(command, response)
+            # sends the command and awaits a response
+            await self.exec(command)
+            await self.recv()
 
         await asyncio.sleep(0.25)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#######################################
+########## BOILERPLATE CODE ###########
+#######################################
+
 
     def queue_instruction(self, instructions):
         self.queue.append(instructions)
 
-    # handles coordinate and heading updates when moving
-    def handle_movement(self, command, status):
+    def forward(self):
+        self.queue_instruction("turtle.forward()")
 
+
+    # handles coordinate and heading updates when moving
+    def handle_movement(self, command):
         # handles turtle forward movement
         if command == "turtle.forward()":
             if self.heading == 0:
@@ -213,6 +235,10 @@ class Turtle:
 
         data = await self.websocket.recv() #type: ignore
 
+        if data == DISCONNECT_MESSAGE:
+            self.connected = False
+            return
+
         # parses the message for its status and data
         status = data[:3]
         if status == TRUE:
@@ -229,7 +255,6 @@ class Turtle:
     def get_queue_length(self):
         return len(self.queue)
 
-
     # sends formatted name data
     async def set_name(self):
         await self.websocket.send(f"{TYPE_NAME}{self.type}.{self.pyd_pos}-{self.ucount}") #type: ignore
@@ -244,7 +269,18 @@ class Turtle:
 
 
 
-    # constructor types
+
+
+
+
+
+
+
+
+
+#######################################
+##########CONSTRUCTOR OPTIONS##########
+#######################################
 
     def start_master(self):
         self.x = 0
