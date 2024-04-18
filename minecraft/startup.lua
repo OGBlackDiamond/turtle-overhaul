@@ -211,7 +211,7 @@ function websocket_start(turtleID, parentID)
 
         -- appends each inventory slot to the json package
         for i = 1, 16, 1 do
-            payload = payload .. string.format('\n\t\tslot%d: {"name": "%s", "count": %d}', i, inv_names[i], inv_counts[i]) .. (i ~= 16 and "," or "\n\t}") 
+            payload = payload .. string.format('\n\t\t"slot%d": {"name": "%s", "count": %d}', i, inv_names[i], inv_counts[i]) .. (i ~= 16 and "," or "\n\t}") 
         end
         payload = payload .. "\n}"
 
