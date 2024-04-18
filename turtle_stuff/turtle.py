@@ -94,8 +94,6 @@ class Turtle:
     type: str
     pyd_pos: int
 
-
-
     def __init__(self, websocket: ServerConnection,
                  parent,
                  gameID: int,
@@ -133,9 +131,17 @@ class Turtle:
         else:
            self.recover_from_json(json)
 
+
+
+
+###########################
+##### MAIN CODE START #####
+###########################
+
+
     async def main(self):
 
-        command: str
+        self.queue_instruction("print('greetings program')")
 
         if len(self.queue) > 0:
             # gets the next command to execute from the stack
@@ -235,19 +241,28 @@ class Turtle:
 
         data = await self.websocket.recv() #type: ignore
 
+        # if the turtle is disconnecting, disconnect
         if data == DISCONNECT_MESSAGE:
             self.connected = False
             return
 
-        # parses the message for its status and data
-        status = data[:3]
+
+        # loads the data as a json object
+        data_json = json.loads(data)
+
+        # add the json object to the message queue
+        self.messages.insert(0, data_json)
+
+        # parse the json for the status
+        status = data_json["return"]["status"]
+
+        # returns a python boolean value
         if status == TRUE:
             status = True
         else:
-            status = False
-        content = data[3:]
+            status = False 
 
-        self.messages.insert(0, Message(status, content)) 
+        return status
 
     def get_message(self, index=0):
         return self.messages[index]
@@ -324,9 +339,6 @@ class Turtle:
 
         self.ucount = json["ucount"]
 
-        i = 0
-        for stats in json["io"]["messages"]:
-            self.messages.append(Message(stats["stats"][i], stats["content"][i]))
-            i += 1
+        self.queue = json["io"]["messages"]
 
         self.queue = json["io"]["queue"]

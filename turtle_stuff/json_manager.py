@@ -38,15 +38,8 @@ def dump_turtles(turtles):
 
         # handles io
         local_dir["io"] = {}
-        local_dir["io"]["messages"] = {}
-        local_dir["io"]["messages"]["status"] = []
-        local_dir["io"]["messages"]["content"] = []
+        local_dir["io"]["messages"] = turtle.messages
         local_dir["io"]["queue"] = []
-
-        # appends all messages
-        for message in turtle.messages:
-            local_dir["io"]["messages"]["status"] = message.status
-            local_dir["io"]["messages"]["content"].append(message.data)
 
         # appends all commands in the queue
         for command in turtle.queue:
