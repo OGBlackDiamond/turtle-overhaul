@@ -241,8 +241,6 @@ class Turtle:
 
         data = await self.websocket.recv() #type: ignore
 
-        print(f"\n\n{data}\n\n")
-
         # if the turtle is disconnecting, disconnect
         if data == DISCONNECT_MESSAGE:
             self.connected = False
@@ -250,21 +248,21 @@ class Turtle:
 
 
         # loads the data as a json object
-        # data_json = json.loads(data)
+        data_json = json.loads(data)
 
-        # # add the json object to the message queue
-        # self.messages.insert(0, data_json)
+        # add the json object to the message queue
+        self.messages.insert(0, data_json)
 
-        # # parse the json for the status
-        # status = data_json["return"]["status"]
+        # parse the json for the status
+        status = data_json["return"]["status"]
 
-        # # returns a python boolean value
-        # if status == TRUE:
-        #     status = True
-        # else:
-        #     status = False 
+        # returns a python boolean value
+        if status == TRUE:
+            status = True
+        else:
+            status = False 
 
-        # return status
+        return status
 
     def get_message(self, index=0):
         return self.messages[index]

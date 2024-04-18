@@ -45,7 +45,7 @@ function getInventory()
             names[slot] = item["name"]
             counts[slot] = item["count"]
         else
-            names[slot] = "nil"
+            names[slot] = nil
             counts[slot] = -1
         end
     end
@@ -193,13 +193,13 @@ function websocket_start(turtleID, parentID)
         local payload = string.format([[
             {
                 "return": {
-                    "status": %s, 
-                    "data": %s
+                    "status": "%s", 
+                    "data": "%s"
                 },
                 "fuel": %d,
-                "up": %s,
-                "front": %s,
-                "down": %s,
+                "up": "%s",
+                "front": "%s",
+                "down": "%s",
                 "inventory": {]],
             res_stat,
             return_data,
@@ -211,7 +211,7 @@ function websocket_start(turtleID, parentID)
 
         -- appends each inventory slot to the json package
         for i = 1, 16, 1 do
-            payload = payload .. string.format('\n\t\tslot%d: {"name": %s, "count": %d}', i, inv_names[i], inv_counts[i]) .. (i ~= 16 and "," or "\n\t}") 
+            payload = payload .. string.format('\n\t\tslot%d: {"name": "%s", "count": %d}', i, inv_names[i], inv_counts[i]) .. (i ~= 16 and "," or "\n\t}") 
         end
         payload = payload .. "\n}"
 
