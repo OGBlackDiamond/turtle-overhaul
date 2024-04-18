@@ -1,5 +1,9 @@
 -- defines software version
-VERSION = 0.51
+VERSION = 0.65
+
+HOST = "ws://rx-78-2"
+
+PORT = "3000"
 
 -- defines data types used to identify how incoming data should be interpreted
 TYPE_EXEC = "[e]"
@@ -127,7 +131,7 @@ function websocket_start(turtleID, parentID)
     repeat
         print("attempting websocket connection")
         sleep(2)
-        ws, err = http.websocket("ws://rx-78-2:3000")
+        ws, err = http.websocket(HOST .. ":" .. PORT)
     until ws ~= false
 
 
@@ -181,9 +185,9 @@ function websocket_start(turtleID, parentID)
 
         -- send the response of the command into something the server can read
         if status == true then
-            res_stat = TRUE
+            res_status = TRUE
         elseif status == false then
-            res_stat = FALSE
+            res_status = FALSE
         end
 
         -- gets the names and counts of the inveneto
@@ -201,7 +205,7 @@ function websocket_start(turtleID, parentID)
                 "front": "%s",
                 "down": "%s",
                 "inventory": {]],
-            res_stat,
+            res_status,
             return_data,
             turtle.getFuelLevel(),
             inspectBlock("Up"),
