@@ -1,5 +1,5 @@
 -- defines software version
-VERSION = 0.5
+VERSION = 0.51
 
 -- defines data types used to identify how incoming data should be interpreted
 TYPE_EXEC = "[e]"
@@ -45,7 +45,7 @@ function getInventory()
             names[slot] = item["name"]
             counts[slot] = item["count"]
         else
-            names[slot] = nil
+            names[slot] = "nil"
             counts[slot] = -1
         end
     end
