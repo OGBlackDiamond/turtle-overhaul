@@ -150,7 +150,6 @@ function websocket_start(turtleID, parentID)
 
         -- gets a message from the server and setds a defualt response value
         local data = ws.receive(5)
-        local response = nil
 
         -- won't do anything if the recv times out
         if data ~= nil then
@@ -180,13 +179,10 @@ function websocket_start(turtleID, parentID)
 
         end
 
-        -- variable that will store the string type for the received message
-        local res_status
-
         -- send the response of the command into something the server can read
-        if status == true then
+        if status == true or status == 1 then
             res_status = TRUE
-        elseif status == false then
+        elseif status == false or status == 0 then
             res_status = FALSE
         end
 
