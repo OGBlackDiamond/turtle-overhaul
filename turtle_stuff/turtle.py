@@ -180,17 +180,40 @@ class Turtle:
 #######################################
 
 
+
+    # series of functions that give the turtle direct instructuons
+    # this is simply to make my life programming easier
     def queue_instruction(self, instructions):
         self.queue.append(instructions)
 
     def forward(self):
         self.queue_instruction("turtle.forward()")
 
+    def back(self):
+        self.queue_instruction("turtle.back()")
+
+    # options: right, left
+    def turn(self, direction="right"):
+        self.queue_instruction(f"turtle.turn{direction.capitalize()}()")
+
+    def up(self):
+        self.queue_instruction("turtle.Up()")
+
+    def down(self):
+        self.queue_instruction("turtle.Down()")
+
+    # options: "", up, down
+    def dig(self, direction=""):
+        self.queue_instruction(f"turtle.dig{direction.capitalize()}()")
+
 
     # handles coordinate and heading updates when moving
-    def handle_movement(self, command):
+    def handle_movement(self, command, status):
+
+        command = "return " + command
+
         # handles turtle forward movement
-        if command == "turtle.forward()":
+        if command == "turtle.forward()" and status:
             if self.heading == 0:
                 self.z -= 1
             elif self.heading == 1:
@@ -201,7 +224,7 @@ class Turtle:
                 self.x -= 1
 
         # handles turtle reverse movement
-        elif command == "turtle.back()":
+        elif command == "turtle.back()" and status:
             if self.heading == 0:
                 self.z += 1
             elif self.heading == 1:
@@ -212,22 +235,19 @@ class Turtle:
                 self.x += 1
 
         # handles turtle vertical movement
-        elif command == "turtle.up()":
+        elif command == "turtle.up()" and status:
             self.y += 1
         elif command == "turtle.down()":
             self.y -= 1;
 
         # handles rotations
-        elif command == "turtle.turnRight()":
+        elif command == "turtle.turnRight()" and status:
             self.heading += 1
-        elif command == "turtle.turnLeft()":
+        elif command == "turtle.turnLeft()" and status:
             self.heading -= 1
 
         # handles rotation overflow
-        if self.heading > 3:
-            self.heading -= 4
-        elif self.heading < 0:
-            self.heading += 4
+        self.heading %= 4
 
     # handles message sending 
     async def exec(self, message):
@@ -260,7 +280,10 @@ class Turtle:
         if status == TRUE:
             status = True
         else:
-            status = False 
+            status = False
+
+        self.handle_movement(data_json["return"]["command"], status)
+
 
         return status
 

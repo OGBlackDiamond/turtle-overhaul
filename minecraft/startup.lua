@@ -193,8 +193,9 @@ function websocket_start(turtleID, parentID)
         local payload = string.format([[
             {
                 "return": {
-                    "status": "%s", 
-                    "data": "%s"
+                    "status": "%s",
+                    "data": "%s",
+                    "command": "%s"
                 },
                 "fuel": %d,
                 "up": "%s",
@@ -203,6 +204,7 @@ function websocket_start(turtleID, parentID)
                 "inventory": {]],
             res_status,
             return_data,
+            data_content,
             turtle.getFuelLevel(),
             inspectBlock("Up"),
             inspectBlock(),
