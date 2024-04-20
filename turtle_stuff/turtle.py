@@ -63,17 +63,6 @@ south = 2
 west = 3
 """
 
-
-class Message:
-
-    status: str
-    data: str
-
-    def __init__(self, status:str, data:str):
-        self.status = status
-        self.data = data
-
-
 class Turtle:
 
     connected: bool
@@ -83,7 +72,7 @@ class Turtle:
     parentID: int
 
     queue: list[str]
-    messages: list[Message]
+    messages: list[dict]
 
     x: int
     y: int
@@ -97,6 +86,9 @@ class Turtle:
     def __init__(self, websocket: ServerConnection,
                  parent,
                  gameID: int,
+                 x: int,
+                 y: int,
+                 z: int,
                  parentID: int=-1,
                  json: dict={},
                  is_recovering: bool=False
@@ -119,7 +111,7 @@ class Turtle:
 
             # this turtle has no parent, it will be the master turtle
             if self.parent == None:
-                self.start_master()
+                self.start_master(x, y, z)
 
             # a parent turtle exists, it's telemetry will be translated to it
             else:
@@ -210,7 +202,7 @@ class Turtle:
     # handles coordinate and heading updates when moving
     def handle_movement(self, command, status):
 
-        command = "return " + command
+        command = command[7:]
 
         # handles turtle forward movement
         if command == "turtle.forward()" and status:
@@ -287,9 +279,11 @@ class Turtle:
 
         return status
 
+    # gets the message at a particular index
     def get_message(self, index=0):
         return self.messages[index]
 
+    # returns the length of the queue
     def get_queue_length(self):
         return len(self.queue)
 
@@ -308,22 +302,14 @@ class Turtle:
 
 
 
-
-
-
-
-
-
-
-
 #######################################
-##########CONSTRUCTOR OPTIONS##########
+######### CONSTRUCTOR OPTIONS #########
 #######################################
 
-    def start_master(self):
-        self.x = 0
-        self.y = 0
-        self.z = 0
+    def start_master(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
         self.heading = 0
         self.type = "M"
         self.pyd_pos = 0

@@ -1,6 +1,7 @@
 from websockets.sync.server import ServerConnection
 from turtle_stuff.turtle import Turtle
 turtles = []
+starting_coords = [None, None, None]
 
 # adds a turtle to the array
 def add_turtle(turtle: Turtle):
@@ -28,3 +29,10 @@ def set_websocket(websocket: ServerConnection, id: int) -> Turtle:
             return turtles[i]
 
     return None # type: ignore
+
+def get_start_coords():
+    return starting_coords
+
+def set_start_coords(coords):
+    global starting_coords
+    starting_coords = coords
