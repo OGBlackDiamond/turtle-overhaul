@@ -86,10 +86,8 @@ class Turtle:
     def __init__(self, websocket: ServerConnection,
                  parent,
                  gameID: int,
-                 x: int,
-                 y: int,
-                 z: int,
                  parentID: int=-1,
+                coords: list[int]=[0, 0, 0],
                  json: dict={},
                  is_recovering: bool=False
                 ):
@@ -111,7 +109,7 @@ class Turtle:
 
             # this turtle has no parent, it will be the master turtle
             if self.parent == None:
-                self.start_master(x, y, z)
+                self.start_master(coords[0], coords[1], coords[3])
 
             # a parent turtle exists, it's telemetry will be translated to it
             else:

@@ -1,10 +1,12 @@
 from turtle_stuff.turtle import Turtle
-import time
+from websockets.sync.server import ServerConnection
 
 # this will handle all logic in the autonomous funciton of the turtle swarm
 class Master_Control_Program:
 
     turtles: list[Turtle]
+
+    starting_coords: list[int]
 
     world: dict
 
@@ -33,5 +35,34 @@ class Master_Control_Program:
         self.world[f"{turtle.x}"][f"{turtle.y}"][f"{turtle.z - 1}"] = self.world[f"{turtle.x}"][f"{turtle.y}"].get(f"{turtle.z - 1}", "unknown")
         self.world[f"{turtle.x}"][f"{turtle.y}"][f"{turtle.z + 1}"] = self.world[f"{turtle.x}"][f"{turtle.y}"].get(f"{turtle.z + 1}", "unknown")
 
-    def add_turtle(self, turtle):
+    # adds a turtle to the array
+    def add_turtle(self, turtle: Turtle):
         self.turtles.append(turtle)
+
+    # returns the array of turtles
+    def get_turtles(self) -> list[Turtle]:
+        return self.turtles
+
+    # returns a turtle with the given id
+    def find_turtle(self, id: int) -> Turtle:
+        # loops through the list of turtles
+        for turtle in self.turtles:
+            # returns the turtle that matches the id
+            if turtle.gameID == id:
+                return turtle
+
+        return None # type: ignore
+
+    def set_websocket(self, websocket: ServerConnection, id: int) -> Turtle:
+        for i in range(0, len(self.turtles)):
+            if self.turtles[i].gameID == id:
+                self.turtles[i].websocket = websocket
+                return self.turtles[i]
+
+        return None # type: ignore
+
+    def get_start_coords(self):
+        return self.starting_coords
+
+    def set_start_coords(self, coords):
+        self.starting_coords = coords

@@ -1,7 +1,11 @@
 import json
 import os
 
-file = os.path.join(os.path.dirname(__file__), "json_dump.json")
+
+directory = os.path.dirname(__file__)
+
+def loadworld(world: str):
+        
 
 def dump_turtles(turtles):
     turtle_json = {}

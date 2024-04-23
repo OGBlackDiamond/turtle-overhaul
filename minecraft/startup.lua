@@ -73,51 +73,55 @@ end
 
 -- spawn and boot up another turtle
 function clone()
-    if turtle.getFuelLevel() > 1 then
-        -- places the disk drive
-        turtle.select(getItemIndex("computercraft:disk_drive"))
-        turtle.dig()
-        local step1 = turtle.place()
+    -- places the disk drive
+    turtle.select(getItemIndex("computercraft:disk_drive"))
+    turtle.dig()
+    local step1 = turtle.place()
 
-        -- inserts the disk
-        turtle.select(getItemIndex("computercraft:disk"))
-        local step2 = turtle.drop()
+    -- inserts the disk
+    turtle.select(getItemIndex("computercraft:disk"))
+    local step2 = turtle.drop()
 
-        os.sleep(1)
+    os.sleep(1)
 
-        -- updates the boot file
-        shell.run("rm", "disk/startup.lua")
-        local step3 = shell.run("wget", "https://raw.githubusercontent.com/OGBlackDiamond/turtle-overhaul/main/minecraft/startup.lua", "disk/startup.lua")
+    -- updates the boot file
+    shell.run("rm", "disk/startup.lua")
+    local step3 = shell.run("wget", "https://raw.githubusercontent.com/OGBlackDiamond/turtle-overhaul/main/minecraft/startup.lua", "disk/startup.lua")
 
-        -- updates turtle
-        shell.run("cp", "disk/startup.lua", "startup.lua")
+    -- updates turtle
+    shell.run("cp", "disk/startup.lua", "startup.lua")
 
-        -- moves the turtle up
-        turtle.digUp()
-        local step4 = turtle.up()
+    -- moves the turtle up
+    turtle.digUp()
+    local step4 = turtle.up()
 
-        -- places the new turtle
-        turtle.select(getItemIndex("computercraft:turtle_normal"))
-        turtle.dig()
-        local step5 = turtle.place()
+    -- places the new turtle
+    turtle.select(getItemIndex("computercraft:turtle_normal"))
+    turtle.dig()
+    local step5 = turtle.place()
 
-        turtle.select(1)
-        turtle.drop(math.floor(turtle.getItemCount() / 2))
+    -- get give the new turtle some coal
+    turtle.select(1)
+    turtle.drop(math.floor(turtle.getItemCount() / 2))
 
-        -- turns it on
-        peripheral.call("front", "turnOn")
+    -- turns it on
+    peripheral.call("front", "turnOn")
 
-        -- waits for clone turtle to identify its parent
-        os.sleep(5)
+    -- waits for clone turtle to identify its parent
+    os.sleep(5)
 
-        if step1 and step2 and step3 and step4 and step5 then
-            return TRUE
-        else
-            return FALSE
-        end
+    -- move the turtle back down
+    turtle.down()
+
+    -- take my disk drive back
+    turtle.suck()
+    turtle.dig()
+
+    if step1 and step2 and step3 and step4 and step5 then
+        return TRUE
+    else
+        return FALSE
     end
-    print("not enough fuel to clone")
-    return FALSE
 end
 
 

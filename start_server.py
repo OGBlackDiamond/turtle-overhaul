@@ -1,5 +1,4 @@
 import server
-import server_utils
 from argparse import ArgumentParser
 
 parser = ArgumentParser(
@@ -12,5 +11,7 @@ parser.add_argument("-c", "--coordinates", type=int, nargs=3, default=[0, 0, 0])
 
 args = parser.parse_args()
 
-server_utils.set_start_coords(args.coordinates)
-#server.main()
+server.mcp.set_start_coords(args.coordinates)
+
+
+server.main()

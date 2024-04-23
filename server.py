@@ -3,9 +3,9 @@ import aioconsole
 import websockets.server
 from websockets.sync.server import ServerConnection
 from turtle_stuff.turtle import Turtle
-from turtle_stuff import json_manager
+from worlds import json_manager
 from mcp import Master_Control_Program
-import server_utils
+
 
 
 # identifies the port
@@ -47,29 +47,46 @@ async def handle_connect(websocket: ServerConnection):
             ### HANDLES TURTLE RECONNECTION ###
 
             # attempt to recconnect the turtle to it's websocket if it exists
-            turtle = server_utils.set_websocket(websocket, turtle_id) # type: ignore
+            turtle = mcp.set_websocket(websocket, turtle_id) # type: ignore
 
             # if a turtle object doesn't exist, recover it from json
             if turtle == None:
+
+                # gather data
                 turtles_json = json_manager.restore_turtles()
 
                 turtle_json = turtles_json[f"turtle{turtle_id}"]
 
                 neo_parent_id = turtle_json["parentID"]
 
-                parent = server_utils.find_turtle(neo_parent_id)
+                parent = mcp.find_turtle(neo_parent_id)
 
-                turtle = Turtle(websocket, parent, turtle_id, neo_parent_id, turtle_json, True)
-                server_utils.add_turtle(turtle)
+                # create new instance with stored data
+                turtle = Turtle(
+                    websocket=websocket, 
+                    parent=parent, 
+                    gameID=turtle_id, 
+                    parentID=neo_parent_id, 
+                    json=turtle_json, 
+                    is_recovering=True)
+
+                # add the turtle to the arrays of turtles
+                mcp.add_turtle(turtle)
                 mcp.add_turtle(turtle)
 
         else:
 
             ### HANDLES INITIAL TURTLE CONNECTION ###
 
-            parent = server_utils.find_turtle(parent_id)
-            turtle = Turtle(websocket, parent, turtle_id)
-            server_utils.add_turtle(turtle)
+            parent = mcp.find_turtle(parent_id)
+
+            turtle = Turtle(
+                websocket=websocket, 
+                parent=parent, 
+                gameID=turtle_id,
+                coords=mcp.get_start_coords())
+
+            mcp.add_turtle(turtle)
             mcp.add_turtle(turtle)
             await turtle.set_name()
 
@@ -85,13 +102,13 @@ async def console():
     while True:
         line = await aioconsole.ainput('->')
         if line == "stop":
-            json_manager.dump_turtles(server_utils.get_turtles())
+            json_manager.dump_turtles(mcp.get_turtles())
             asyncio.get_event_loop().stop()
         elif line == "save":
-            json_manager.dump_turtles(server_utils.get_turtles())
+            json_manager.dump_turtles(mcp.get_turtles())
         elif line == "stats":
             print("SERVER STATISTICS")
-            print(f"Connected Turtles: {len(server_utils.get_turtles())}")
+            print(f"Connected Turtles: {len(mcp.get_turtles())}")
 
 async def test():
     while True:
