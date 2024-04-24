@@ -83,11 +83,12 @@ class Turtle:
     type: str
     pyd_pos: int
 
-    def __init__(self, websocket: ServerConnection,
+    def __init__(self, 
+                 websocket: ServerConnection,
                  parent,
                  gameID: int,
                  parentID: int=-1,
-                coords: list[int]=[0, 0, 0],
+                 coords: list[int]=[0, 0, 0],
                  json: dict={},
                  is_recovering: bool=False
                 ):

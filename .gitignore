@@ -3,5 +3,10 @@ __pycache__/
 turtle_stuff/json_dump.json
 
 
+worlds/*
+
+!worlds/json_manager.py
+
 test.py
 test.lua
+

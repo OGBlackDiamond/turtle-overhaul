@@ -10,23 +10,26 @@ class Master_Control_Program:
 
     world: dict
 
-    def __init__(self):
+    def __init__(self, starting_coords):
         self.turtles = []
         self.world = {}
+        self.starting_coords = starting_coords
 
     def main(self):
         for turtle in self.turtles:
             self.gen_world(turtle)
 
-    def get_block(self, x, y, z):
+    def get_block(self, x:int, y:int, z:int) -> str:
         try:
             return self.world[f"{x}"][f"{y}"][f"{z}"]
         except KeyError:
             print("[ERROR] Requested world block does not exist yet.")
             return "unknown"
 
+    def set_world(self, world:dict):
+        self.world = world
 
-    def gen_world(self, turtle):
+    def gen_world(self, turtle: Turtle):
         # loads new unknown block values in where the turtle could potentially detect and assign block values
         self.world[f"{turtle.x - 1}"] = self.world.get(f"{turtle.x - 1}", {f"{turtle.y}": {f"{turtle.z}": "unknown"}})
         self.world[f"{turtle.x + 1}"] = self.world.get(f"{turtle.x + 1}", {f"{turtle.y}": {f"{turtle.z}": "unknown"}})
@@ -61,8 +64,8 @@ class Master_Control_Program:
 
         return None # type: ignore
 
-    def get_start_coords(self):
+    def get_start_coords(self) -> list[int]:
         return self.starting_coords
 
-    def set_start_coords(self, coords):
+    def set_start_coords(self, coords: list[int]):
         self.starting_coords = coords

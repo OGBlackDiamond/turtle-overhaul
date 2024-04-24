@@ -1,60 +1,82 @@
+from io import TextIOWrapper
 import json
 import os
 
+class Json_Manager:
 
-directory = os.path.dirname(__file__)
+    directory: str
+    world_file: str
+    turtle_file: str
 
-def loadworld(world: str):
-        
+    def __init__(self, world="world"):
 
-def dump_turtles(turtles):
-    turtle_json = {}
+        self.select_world(world)
 
-    for turtle in turtles:
 
-        turtle_dir = f"turtle{turtle.gameID}"
-        turtle_json[turtle_dir] = {}
+    def select_world(self, world):
 
-        # defines a local directory in the json tree for easier typing
-        local_dir = turtle_json[turtle_dir]
+        self.directory = os.path.join(os.path.dirname(__file__), f"{world}")
 
-        # handles turtle and parent ids
-        local_dir["turtleID"] = turtle.gameID
-        local_dir["parentID"] = turtle.parentID
+        self.world_file = os.path.join(self.directory, "world.json")
 
-        # handles coordinates
-        local_dir["coords"] = {}
-        local_dir["coords"]["x"] = turtle.x
-        local_dir["coords"]["y"] = turtle.y
-        local_dir["coords"]["z"] = turtle.z
+        self.turtle_file = os.path.join(self.directory, "turtle_data.json")
 
-        # handles heading
-        local_dir["heading"] = turtle.heading
+        if not os.path.exists(self.directory):
+            os.mkdir(self.directory)
 
-        # handles type
-        local_dir["type"] = turtle.type
 
-        # handles pyramid position
-        local_dir["pyd_pos"] = turtle.pyd_pos
+        self.turtles = open(self.turtle_file, "w+")
+        self.world = open(self.world_file, "w+")
 
-        # handles underling count
-        local_dir["ucount"] = turtle.ucount
 
-        # handles io
-        local_dir["io"] = {}
-        local_dir["io"]["messages"] = turtle.messages
-        local_dir["io"]["queue"] = turtle.queue
+    def get_world(self):
+        return json.loads(self.world.read())
 
-    with open(file, "w") as turtle_dump:
-        json.dump(turtle_json, turtle_dump, indent=4)
-        turtle_dump.close()
 
-def restore_turtles():
-    turtle_json = {}
-    if os.path.exists(file):
-        with open(file, "r") as json_file:
-            turtle_json = json.load(json_file)
-            json_file.close()
+    def write_to_world(self, world):
+        self.world.write(json.dumps(world))
 
-    return turtle_json
+    def dump_turtles(self, turtles):
+        turtle_json = {}
+
+        for turtle in turtles:
+
+            turtle_dir = f"turtle{turtle.gameID}"
+            turtle_json[turtle_dir] = {}
+
+            # defines a local directory in the json tree for easier typing
+            local_dir = turtle_json[turtle_dir]
+
+            # handles turtle and parent ids
+            local_dir["turtleID"] = turtle.gameID
+            local_dir["parentID"] = turtle.parentID
+
+            # handles coordinates
+            local_dir["coords"] = {}
+            local_dir["coords"]["x"] = turtle.x
+            local_dir["coords"]["y"] = turtle.y
+            local_dir["coords"]["z"] = turtle.z
+
+            # handles heading
+            local_dir["heading"] = turtle.heading
+
+            # handles type
+            local_dir["type"] = turtle.type
+
+            # handles pyramid position
+            local_dir["pyd_pos"] = turtle.pyd_pos
+
+            # handles underling count
+            local_dir["ucount"] = turtle.ucount
+
+            # handles io
+            local_dir["io"] = {}
+            local_dir["io"]["messages"] = turtle.messages
+            local_dir["io"]["queue"] = turtle.queue
+
+
+        self.turtles.write(json.dumps(turtle_json, indent=4))
+
+    def restore_turtles(self):
+        return json.loads(self.turtles.read())
 
