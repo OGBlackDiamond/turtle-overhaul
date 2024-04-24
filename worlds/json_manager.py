@@ -22,19 +22,23 @@ class Json_Manager:
 
         if not os.path.exists(self.directory):
             os.mkdir(self.directory)
+            with open(self.turtle_file, "w") as f:
+                f.write("{}")
+                f.close()
+            with open(self.world_file, "w") as f:
+                f.write("{}")
+                f.close()
 
-
-        self.turtles = open(self.turtle_file, "r+")
-        self.world = open(self.world_file, "r+")
 
 
     def get_world(self):
-        return json.loads(self.world.read())
+        with open(self.world_file, "r") as file:
+            return json.loads(file.read())
 
 
     def write_to_world(self, world):
-        self.world.truncate(0)
-        self.world.write(json.dumps(world, indent=4))
+        with open(self.world_file, "w") as file:
+            file.write(json.dumps(world, indent=4))
 
     def dump_turtles(self, turtles):
         turtle_json = {}
@@ -74,9 +78,10 @@ class Json_Manager:
             local_dir["io"]["messages"] = turtle.messages
             local_dir["io"]["queue"] = turtle.queue
 
-        self.turtles.truncate(0)
-        self.turtles.write(json.dumps(turtle_json, indent=4))
+        with open(self.turtle_file, "w") as file:
+            file.write(json.dumps(turtle_json, indent=4))
 
     def restore_turtles(self):
-        return json.loads(self.turtles.read())
+        with open(self.turtle_file, "r") as file:
+            return json.loads(file.read())
 

@@ -18,8 +18,6 @@ class Master_Control_Program:
     def main(self):
         for turtle in self.turtles:
             self.gen_world(turtle)
-            
-        print(self.world)
 
     def get_block(self, x:int, y:int, z:int) -> str:
         try:
@@ -39,6 +37,7 @@ class Master_Control_Program:
 
     def gen_world(self, turtle: Turtle):
         # loads new unknown block values in where the turtle could potentially detect and assign block values
+        self.world[f"{turtle.x}"] = self.world.get(f"{turtle.x}", {f"{turtle.y}": {f"{turtle.z}": "turtle"}})
         self.world[f"{turtle.x - 1}"] = self.world.get(f"{turtle.x - 1}", {f"{turtle.y}": {f"{turtle.z}": "unknown"}})
         self.world[f"{turtle.x + 1}"] = self.world.get(f"{turtle.x + 1}", {f"{turtle.y}": {f"{turtle.z}": "unknown"}})
         self.world[f"{turtle.x}"][f"{turtle.y - 1}"] = self.world[f"{turtle.x}"].get(f"{turtle.y - 1}", {f"{turtle.z}": "unknown"})

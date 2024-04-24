@@ -278,7 +278,7 @@ class Turtle:
         elif self.heading == 3:
             self.master_control_program.set_block(self.x - 1, self.y, self.z , data_json["front"])
 
-        self.master_control_program.set_block(self.x, self.y - 1, self.z, data_json["up"])
+        self.master_control_program.set_block(self.x, self.y + 1, self.z, data_json["up"])
 
 
 
