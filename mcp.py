@@ -18,6 +18,8 @@ class Master_Control_Program:
     def main(self):
         for turtle in self.turtles:
             self.gen_world(turtle)
+            
+        print(self.world)
 
     def get_block(self, x:int, y:int, z:int) -> str:
         try:
@@ -25,6 +27,12 @@ class Master_Control_Program:
         except KeyError:
             print("[ERROR] Requested world block does not exist yet.")
             return "unknown"
+
+    def set_block(self, x, y, z, value):
+        try:
+            self.world[f"{x}"][f"{y}"][f"{z}"] = value
+        except KeyError:
+            print("[ERROR] World block does not exist yet.")
 
     def set_world(self, world:dict):
         self.world = world
@@ -45,6 +53,9 @@ class Master_Control_Program:
     # returns the array of turtles
     def get_turtles(self) -> list[Turtle]:
         return self.turtles
+
+    def get_world(self) -> dict:
+        return self.world
 
     # returns a turtle with the given id
     def find_turtle(self, id: int) -> Turtle:

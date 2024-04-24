@@ -21,7 +21,7 @@ class Server:
         self.mcp.set_world(self.json_manager.get_world())
 
         # identifies the hostname
-        self.HOST = "rx-78-2"
+        self.HOST = "localhost"
         # identifies the port
         self.PORT = 3000
 
@@ -56,7 +56,7 @@ class Server:
                 ### HANDLES TURTLE RECONNECTION ###
 
                 # attempt to recconnect the turtle to it's websocket if it exists
-                turtle = mcp.set_websocket(websocket, turtle_id) # type: ignore
+                turtle = self.mcp.set_websocket(websocket, turtle_id) # type: ignore
 
                 # if a turtle object doesn't exist, recover it from json
                 if turtle == None:
@@ -73,6 +73,7 @@ class Server:
                     # create new instance with stored data
                     turtle = Turtle(
                         websocket=websocket, 
+                        master_control_program=self.mcp,
                         parent=parent, 
                         gameID=turtle_id, 
                         parentID=neo_parent_id, 
@@ -80,7 +81,6 @@ class Server:
                         is_recovering=True)
 
                     # add the turtle to the arrays of turtles
-                    self.mcp.add_turtle(turtle)
                     self.mcp.add_turtle(turtle)
 
             else:
@@ -91,11 +91,11 @@ class Server:
 
                 turtle = Turtle(
                     websocket=websocket, 
+                    master_control_program=self.mcp,
                     parent=parent, 
                     gameID=turtle_id,
                     coords=self.mcp.get_start_coords())
 
-                self.mcp.add_turtle(turtle)
                 self.mcp.add_turtle(turtle)
                 await turtle.set_name()
 
@@ -112,9 +112,11 @@ class Server:
             line = await aioconsole.ainput('->')
             if line == "stop":
                 self.json_manager.dump_turtles(self.mcp.get_turtles())
+                self.json_manager.write_to_world(self.mcp.get_world())
                 asyncio.get_event_loop().stop()
             elif line == "save":
                 self.json_manager.dump_turtles(self.mcp.get_turtles())
+                self.json_manager.write_to_world(self.mcp.get_world())
             elif line == "stats":
                 print("SERVER STATISTICS")
                 print(f"Connected Turtles: {len(self.mcp.get_turtles())}")
@@ -122,11 +124,11 @@ class Server:
     async def start_mcp(self):
         while True:
             self.mcp.main()
-            await asyncio.sleep(0.125)
+            await asyncio.sleep(0.25)
 
     # the main function that will start the server and console
     def main(self):
-        start_server = websockets.server.serve(handle_connect, HOST, PORT, ssl=None, compression=None) # type: ignore
+        start_server = websockets.server.serve(self.handle_connect, self.HOST, self.PORT, ssl=None, compression=None) # type: ignore
         print("STARTING SERVER")
         asyncio.gather(
             self.console(),

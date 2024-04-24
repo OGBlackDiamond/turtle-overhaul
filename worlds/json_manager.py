@@ -1,4 +1,3 @@
-from io import TextIOWrapper
 import json
 import os
 
@@ -25,8 +24,8 @@ class Json_Manager:
             os.mkdir(self.directory)
 
 
-        self.turtles = open(self.turtle_file, "w+")
-        self.world = open(self.world_file, "w+")
+        self.turtles = open(self.turtle_file, "r+")
+        self.world = open(self.world_file, "r+")
 
 
     def get_world(self):
@@ -34,7 +33,8 @@ class Json_Manager:
 
 
     def write_to_world(self, world):
-        self.world.write(json.dumps(world))
+        self.world.truncate(0)
+        self.world.write(json.dumps(world, indent=4))
 
     def dump_turtles(self, turtles):
         turtle_json = {}
@@ -74,7 +74,7 @@ class Json_Manager:
             local_dir["io"]["messages"] = turtle.messages
             local_dir["io"]["queue"] = turtle.queue
 
-
+        self.turtles.truncate(0)
         self.turtles.write(json.dumps(turtle_json, indent=4))
 
     def restore_turtles(self):

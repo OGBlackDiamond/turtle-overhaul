@@ -85,6 +85,7 @@ class Turtle:
 
     def __init__(self, 
                  websocket: ServerConnection,
+                 master_control_program,
                  parent,
                  gameID: int,
                  parentID: int=-1,
@@ -96,6 +97,7 @@ class Turtle:
         # the connection satatus of the turtle, its websocket, and parent object
         self.connected = True;
         self.websocket = websocket
+        self.master_control_program = master_control_program
         self.parent = parent
 
         # the in-game id's of the turtle and it's parent
@@ -110,7 +112,7 @@ class Turtle:
 
             # this turtle has no parent, it will be the master turtle
             if self.parent == None:
-                self.start_master(coords[0], coords[1], coords[3])
+                self.start_master(coords[0], coords[1], coords[2])
 
             # a parent turtle exists, it's telemetry will be translated to it
             else:
@@ -263,6 +265,22 @@ class Turtle:
 
         # add the json object to the message queue
         self.messages.insert(0, data_json)
+
+        # give mcp newly discovered world data
+        self.master_control_program.set_block(self.x, self.y - 1, self.z, data_json["down"])
+
+        if self.heading == 0:
+            self.master_control_program.set_block(self.x, self.y, self.z - 1, data_json["front"])
+        elif self.heading == 1:
+            self.master_control_program.set_block(self.x + 1, self.y, self.z, data_json["front"])
+        elif self.heading == 2:
+            self.master_control_program.set_block(self.x, self.y, self.z + 1, data_json["front"])
+        elif self.heading == 3:
+            self.master_control_program.set_block(self.x - 1, self.y, self.z , data_json["front"])
+
+        self.master_control_program.set_block(self.x, self.y - 1, self.z, data_json["up"])
+
+
 
         # parse the json for the status
         status = data_json["return"]["status"]
