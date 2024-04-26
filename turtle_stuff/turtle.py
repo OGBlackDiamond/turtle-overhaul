@@ -1,5 +1,4 @@
 from websockets.sync.server import ServerConnection
-import asyncio
 import json
 
 # sets the message that will indicate a disconnection 
@@ -83,6 +82,8 @@ class Turtle:
     type: str
     pyd_pos: int
 
+    task:str
+
     def __init__(self, 
                  websocket: ServerConnection,
                  master_control_program,
@@ -106,6 +107,8 @@ class Turtle:
 
         self.queue = []
         self.messages = []
+
+        self.task = "coaling"
 
         # if this turtle is not recovering from json
         if is_recovering == False:
@@ -133,9 +136,14 @@ class Turtle:
 
 
     async def main(self):
+        
+        if self.task == "idle":
+            self.idle()
+            
+        elif self.task == "coaling":
+            self.coaling()
 
-        self.queue_instruction("print('greetings program')")
-
+        
         if len(self.queue) > 0:
             # gets the next command to execute from the stack
             command = self.queue.pop(0)
@@ -144,17 +152,27 @@ class Turtle:
             await self.exec(command)
             await self.recv()
 
-        await asyncio.sleep(0.25)
 
 
 
+    def coaling(self, offset=0):
+        if self.x < 56 + offset:
+            self.up(True)
+            self.turn(turns=4)
 
+        elif self.x > 56 + offset:
+            self.down(True)
+            self.turn(turns=4)
 
+        else:
+            self.forward(True)
+            self.turn()
+            self.turn("left", 2)
+            self.turn()
 
-
-
-
-
+    # basic idle function, turtle will simply spin in place
+    def idle(self):
+        self.turn()
 
 
 
@@ -179,31 +197,40 @@ class Turtle:
     def queue_instruction(self, instructions):
         self.queue.append(instructions)
 
-    def forward(self):
+    def forward(self, dig: bool=False):
+        if dig:
+            self.dig()
         self.queue_instruction("turtle.forward()")
 
     def back(self):
         self.queue_instruction("turtle.back()")
 
     # options: right, left
-    def turn(self, direction="right"):
-        self.queue_instruction(f"turtle.turn{direction.capitalize()}()")
+    def turn(self, direction: str="right", turns: int=1):
+        for i in range(turns):
+            self.queue_instruction(f"turtle.turn{direction.capitalize()}()")
 
-    def up(self):
-        self.queue_instruction("turtle.Up()")
+    def up(self, dig: bool=False):
+        if dig:
+            self.dig("up")
+        self.queue_instruction("turtle.up()")
 
-    def down(self):
-        self.queue_instruction("turtle.Down()")
+    def down(self, dig: bool=False):
+        if dig:
+            self.dig("down")
+        self.queue_instruction("turtle.down()")
 
     # options: "", up, down
     def dig(self, direction=""):
         self.queue_instruction(f"turtle.dig{direction.capitalize()}()")
 
 
+
     # handles coordinate and heading updates when moving
     def handle_movement(self, command, status):
 
         command = command[7:]
+        print(command)
 
         # handles turtle forward movement
         if command == "turtle.forward()" and status:

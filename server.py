@@ -21,7 +21,7 @@ class Server:
         self.mcp.set_world(self.json_manager.get_world())
 
         # identifies the hostname
-        self.HOST = "rx-78-2"
+        self.HOST = ""
         # identifies the port
         self.PORT = 3000
 
@@ -101,6 +101,7 @@ class Server:
 
             while turtle.connected:
                 await turtle.main()
+                await asyncio.sleep(0.25)
 
 
             websocket.close()
@@ -124,6 +125,8 @@ class Server:
     async def start_mcp(self):
         while True:
             self.mcp.main()
+            self.json_manager.dump_turtles(self.mcp.get_turtles())
+            self.json_manager.write_to_world(self.mcp.get_world())
             await asyncio.sleep(0.25)
 
     # the main function that will start the server and console
