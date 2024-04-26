@@ -230,7 +230,6 @@ class Turtle:
     def handle_movement(self, command, status):
 
         command = command[7:]
-        print(command)
 
         # handles turtle forward movement
         if command == "turtle.forward()" and status:
@@ -257,7 +256,7 @@ class Turtle:
         # handles turtle vertical movement
         elif command == "turtle.up()" and status:
             self.y += 1
-        elif command == "turtle.down()":
+        elif command == "turtle.down()" and status:
             self.y -= 1;
 
         # handles rotations
@@ -296,14 +295,14 @@ class Turtle:
         # give mcp newly discovered world data
         self.master_control_program.set_block(self.x, self.y - 1, self.z, data_json["down"])
 
-        if self.heading == 0:
-            self.master_control_program.set_block(self.x, self.y, self.z - 1, data_json["front"])
-        elif self.heading == 1:
-            self.master_control_program.set_block(self.x + 1, self.y, self.z, data_json["front"])
-        elif self.heading == 2:
-            self.master_control_program.set_block(self.x, self.y, self.z + 1, data_json["front"])
-        elif self.heading == 3:
-            self.master_control_program.set_block(self.x - 1, self.y, self.z , data_json["front"])
+        # if self.heading == 0:
+        #     self.master_control_program.set_block(self.x, self.y, self.z - 1, data_json["front"])
+        # elif self.heading == 1:
+        #     self.master_control_program.set_block(self.x + 1, self.y, self.z, data_json["front"])
+        # elif self.heading == 2:
+        #     self.master_control_program.set_block(self.x, self.y, self.z + 1, data_json["front"])
+        # elif self.heading == 3:
+        #     self.master_control_program.set_block(self.x - 1, self.y, self.z , data_json["front"])
 
         self.master_control_program.set_block(self.x, self.y + 1, self.z, data_json["up"])
 

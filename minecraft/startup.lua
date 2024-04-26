@@ -159,7 +159,7 @@ function websocket_start(turtleID, parentID)
         if data ~= nil then
             -- parses the data for its type and content
             local data_type = string.sub(data, 1, 3)
-            local data_content = string.sub(data, 4)
+            data_content = string.sub(data, 4)
 
             -- performs the appropriate action based on data type
 
