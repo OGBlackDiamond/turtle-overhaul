@@ -292,17 +292,19 @@ class Turtle:
         # add the json object to the message queue
         self.messages.insert(0, data_json)
 
+        self.master_control_program.gen_world(self)
+
         # give mcp newly discovered world data
         self.master_control_program.set_block(self.x, self.y - 1, self.z, data_json["down"])
 
-        # if self.heading == 0:
-        #     self.master_control_program.set_block(self.x, self.y, self.z - 1, data_json["front"])
-        # elif self.heading == 1:
-        #     self.master_control_program.set_block(self.x + 1, self.y, self.z, data_json["front"])
-        # elif self.heading == 2:
-        #     self.master_control_program.set_block(self.x, self.y, self.z + 1, data_json["front"])
-        # elif self.heading == 3:
-        #     self.master_control_program.set_block(self.x - 1, self.y, self.z , data_json["front"])
+        if self.heading == 0:
+            self.master_control_program.set_block(self.x, self.y, self.z - 1, data_json["front"])
+        elif self.heading == 1:
+            self.master_control_program.set_block(self.x + 1, self.y, self.z, data_json["front"])
+        elif self.heading == 2:
+            self.master_control_program.set_block(self.x, self.y, self.z + 1, data_json["front"])
+        elif self.heading == 3:
+            self.master_control_program.set_block(self.x - 1, self.y, self.z , data_json["front"])
 
         self.master_control_program.set_block(self.x, self.y + 1, self.z, data_json["up"])
 

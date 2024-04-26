@@ -40,10 +40,26 @@ class Master_Control_Program:
         self.world[f"{turtle.x}"] = self.world.get(f"{turtle.x}", {f"{turtle.y}": {f"{turtle.z}": "computercraft:turtle_normal"}})
         self.world[f"{turtle.x - 1}"] = self.world.get(f"{turtle.x - 1}", {f"{turtle.y}": {f"{turtle.z}": "unknown"}})
         self.world[f"{turtle.x + 1}"] = self.world.get(f"{turtle.x + 1}", {f"{turtle.y}": {f"{turtle.z}": "unknown"}})
+
         self.world[f"{turtle.x}"][f"{turtle.y - 1}"] = self.world[f"{turtle.x}"].get(f"{turtle.y - 1}", {f"{turtle.z}": "unknown"})
         self.world[f"{turtle.x}"][f"{turtle.y + 1}"] = self.world[f"{turtle.x}"].get(f"{turtle.y + 1}", {f"{turtle.z}": "unknown"})
+        self.world[f"{turtle.x - 1}"][f"{turtle.y - 1}"] = self.world[f"{turtle.x - 1}"].get(f"{turtle.y - 1}", {f"{turtle.z}": "unknown"})
+        self.world[f"{turtle.x - 1}"][f"{turtle.y + 1}"] = self.world[f"{turtle.x - 1}"].get(f"{turtle.y + 1}", {f"{turtle.z}": "unknown"})
+        self.world[f"{turtle.x + 1}"][f"{turtle.y - 1}"] = self.world[f"{turtle.x + 1}"].get(f"{turtle.y - 1}", {f"{turtle.z}": "unknown"})
+        self.world[f"{turtle.x + 1}"][f"{turtle.y + 1}"] = self.world[f"{turtle.x + 1}"].get(f"{turtle.y + 1}", {f"{turtle.z}": "unknown"})
+
         self.world[f"{turtle.x}"][f"{turtle.y}"][f"{turtle.z - 1}"] = self.world[f"{turtle.x}"][f"{turtle.y}"].get(f"{turtle.z - 1}", "unknown")
         self.world[f"{turtle.x}"][f"{turtle.y}"][f"{turtle.z + 1}"] = self.world[f"{turtle.x}"][f"{turtle.y}"].get(f"{turtle.z + 1}", "unknown")
+
+        self.world[f"{turtle.x + 1}"][f"{turtle.y + 1}"][f"{turtle.z - 1}"] = self.world[f"{turtle.x + 1}"][f"{turtle.y + 1}"].get(f"{turtle.z - 1}", "unknown")
+        self.world[f"{turtle.x + 1}"][f"{turtle.y + 1}"][f"{turtle.z + 1}"] = self.world[f"{turtle.x + 1}"][f"{turtle.y + 1}"].get(f"{turtle.z + 1}", "unknown")
+        self.world[f"{turtle.x - 1}"][f"{turtle.y + 1}"][f"{turtle.z - 1}"] = self.world[f"{turtle.x - 1}"][f"{turtle.y + 1}"].get(f"{turtle.z - 1}", "unknown")
+        self.world[f"{turtle.x - 1}"][f"{turtle.y + 1}"][f"{turtle.z + 1}"] = self.world[f"{turtle.x - 1}"][f"{turtle.y + 1}"].get(f"{turtle.z + 1}", "unknown")
+
+        self.world[f"{turtle.x + 1}"][f"{turtle.y - 1}"][f"{turtle.z - 1}"] = self.world[f"{turtle.x + 1}"][f"{turtle.y - 1}"].get(f"{turtle.z - 1}", "unknown")
+        self.world[f"{turtle.x + 1}"][f"{turtle.y - 1}"][f"{turtle.z + 1}"] = self.world[f"{turtle.x + 1}"][f"{turtle.y - 1}"].get(f"{turtle.z + 1}", "unknown")
+        self.world[f"{turtle.x - 1}"][f"{turtle.y - 1}"][f"{turtle.z - 1}"] = self.world[f"{turtle.x - 1}"][f"{turtle.y - 1}"].get(f"{turtle.z - 1}", "unknown")
+        self.world[f"{turtle.x - 1}"][f"{turtle.y - 1}"][f"{turtle.z + 1}"] = self.world[f"{turtle.x - 1}"][f"{turtle.y - 1}"].get(f"{turtle.z + 1}", "unknown")
 
     # adds a turtle to the array
     def add_turtle(self, turtle: Turtle):

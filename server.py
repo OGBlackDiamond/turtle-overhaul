@@ -21,7 +21,7 @@ class Server:
         self.mcp.set_world(self.json_manager.get_world())
 
         # identifies the hostname
-        self.HOST = ""
+        self.HOST = "rx-78-2"
         # identifies the port
         self.PORT = 3000
 
