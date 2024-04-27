@@ -10,15 +10,18 @@ class Master_Control_Program:
 
     world: dict
 
-    def __init__(self, starting_coords):
+    # initializes with the origional coordinates that the turtle will spawn at
+    def __init__(self, starting_coords: list):
         self.turtles = []
         self.world = {}
         self.starting_coords = starting_coords
 
+    # for now, this just continues to generate the world around the turtles
     def main(self):
         for turtle in self.turtles:
             self.gen_world(turtle)
 
+    # returns the block at the given x y z coordinates
     def get_block(self, x:int, y:int, z:int) -> str:
         try:
             return self.world[f"{x}"][f"{y}"][f"{z}"]
@@ -26,23 +29,23 @@ class Master_Control_Program:
             print("[ERROR] Requested world block does not exist yet.")
             return "unknown"
 
-    def set_block(self, x, y, z, value):
+    # sets the block's value at the given x y z coordinates
+    def set_block(self, x: int, y: int, z: int, value: str):
         try:
             self.world[f"{x}"][f"{y}"][f"{z}"] = value
         except KeyError:
             print("[ERROR] World block does not exist yet.")
 
-    def set_world(self, world:dict):
-        self.world = world
-
     def gen_world(self, turtle: Turtle):
         # loads new unknown block values in where the turtle could potentially detect and assign block values
         self.world[f"{turtle.x}"] = self.world.get(f"{turtle.x}", {f"{turtle.y}": {f"{turtle.z}": "computercraft:turtle_normal"}})
+
         self.world[f"{turtle.x - 1}"] = self.world.get(f"{turtle.x - 1}", {f"{turtle.y}": {f"{turtle.z}": "unknown"}})
         self.world[f"{turtle.x + 1}"] = self.world.get(f"{turtle.x + 1}", {f"{turtle.y}": {f"{turtle.z}": "unknown"}})
 
         self.world[f"{turtle.x}"][f"{turtle.y - 1}"] = self.world[f"{turtle.x}"].get(f"{turtle.y - 1}", {f"{turtle.z}": "unknown"})
         self.world[f"{turtle.x}"][f"{turtle.y + 1}"] = self.world[f"{turtle.x}"].get(f"{turtle.y + 1}", {f"{turtle.z}": "unknown"})
+
         self.world[f"{turtle.x - 1}"][f"{turtle.y - 1}"] = self.world[f"{turtle.x - 1}"].get(f"{turtle.y - 1}", {f"{turtle.z}": "unknown"})
         self.world[f"{turtle.x - 1}"][f"{turtle.y + 1}"] = self.world[f"{turtle.x - 1}"].get(f"{turtle.y + 1}", {f"{turtle.z}": "unknown"})
         self.world[f"{turtle.x + 1}"][f"{turtle.y - 1}"] = self.world[f"{turtle.x + 1}"].get(f"{turtle.y - 1}", {f"{turtle.z}": "unknown"})
@@ -69,6 +72,7 @@ class Master_Control_Program:
     def get_turtles(self) -> list[Turtle]:
         return self.turtles
 
+    # returns the world
     def get_world(self) -> dict:
         return self.world
 
@@ -82,6 +86,7 @@ class Master_Control_Program:
 
         return None # type: ignore
 
+    # sets the websocket class to the turtle at the given id
     def set_websocket(self, websocket: ServerConnection, id: int) -> Turtle:
         for i in range(0, len(self.turtles)):
             if self.turtles[i].gameID == id:
@@ -90,8 +95,14 @@ class Master_Control_Program:
 
         return None # type: ignore
 
+    # returns the starting coords
     def get_start_coords(self) -> list[int]:
         return self.starting_coords
 
+    # sets the starting coordinates for the master turtle
     def set_start_coords(self, coords: list[int]):
         self.starting_coords = coords
+
+    # sets the world, this should only be used in construction.
+    def set_world(self, world:dict):
+        self.world = world

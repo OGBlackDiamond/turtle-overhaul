@@ -112,11 +112,11 @@ class Server:
         while True:
             line = await aioconsole.ainput('->')
             if line == "stop":
-                self.json_manager.dump_turtles(self.mcp.get_turtles())
+                self.json_manager.save_turtle_data(self.mcp.get_turtles())
                 self.json_manager.write_to_world(self.mcp.get_world())
                 asyncio.get_event_loop().stop()
             elif line == "save":
-                self.json_manager.dump_turtles(self.mcp.get_turtles())
+                self.json_manager.save_turtle_data(self.mcp.get_turtles())
                 self.json_manager.write_to_world(self.mcp.get_world())
             elif line == "stats":
                 print("SERVER STATISTICS")
@@ -125,7 +125,7 @@ class Server:
     async def start_mcp(self):
         while True:
             self.mcp.main()
-            self.json_manager.dump_turtles(self.mcp.get_turtles())
+            self.json_manager.save_turtle_data(self.mcp.get_turtles())
             self.json_manager.write_to_world(self.mcp.get_world())
             await asyncio.sleep(0.25)
 

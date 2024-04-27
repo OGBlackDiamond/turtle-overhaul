@@ -155,7 +155,7 @@ class Turtle:
 
 
 
-    def coaling(self, offset=0):
+    def coaling(self, offset: int=0):
         if self.x < 56 + offset:
             self.up(True)
             self.turn(turns=4)
@@ -194,7 +194,7 @@ class Turtle:
 
     # series of functions that give the turtle direct instructuons
     # this is simply to make my life programming easier
-    def queue_instruction(self, instructions):
+    def queue_instruction(self, instructions: str):
         self.queue.append(instructions)
 
     def forward(self, dig: bool=False):
@@ -221,13 +221,13 @@ class Turtle:
         self.queue_instruction("turtle.down()")
 
     # options: "", up, down
-    def dig(self, direction=""):
+    def dig(self, direction: str=""):
         self.queue_instruction(f"turtle.dig{direction.capitalize()}()")
 
 
 
     # handles coordinate and heading updates when moving
-    def handle_movement(self, command, status):
+    def handle_movement(self, command: str, status: bool):
 
         command = command[7:]
 
@@ -269,7 +269,7 @@ class Turtle:
         self.heading %= 4
 
     # handles message sending 
-    async def exec(self, message):
+    async def exec(self, message: str):
         await self.websocket.send(f"{TYPE_EXEC}return {message}") #type: ignore
 
     # handles incoming messages
@@ -292,7 +292,8 @@ class Turtle:
         # add the json object to the message queue
         self.messages.insert(0, data_json)
 
-        self.master_control_program.gen_world(self)
+            # tell the mcp the turtle's position in 3d space
+        self.master_control_program.set_block(self.x, self.y, self.z, "computercraft:turtle_normal")
 
         # give mcp newly discovered world data
         self.master_control_program.set_block(self.x, self.y - 1, self.z, data_json["down"])
@@ -319,6 +320,7 @@ class Turtle:
         else:
             status = False
 
+        # update odometry based on the command and its success
         self.handle_movement(data_json["return"]["command"], status)
 
 
@@ -351,7 +353,7 @@ class Turtle:
 ######### CONSTRUCTOR OPTIONS #########
 #######################################
 
-    def start_master(self, x, y, z):
+    def start_master(self, x: int, y: int, z: int):
         self.x = x
         self.y = y
         self.z = z
@@ -380,7 +382,7 @@ class Turtle:
         self.type = "U"
         self.pyd_pos = self.parent.pyd_pos + 1
 
-    def recover_from_json(self, json):
+    def recover_from_json(self, json: dict):
         self.x = json["coords"]["x"]
         self.y = json["coords"]["y"]
         self.z = json["coords"]["z"]
