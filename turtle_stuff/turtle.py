@@ -105,10 +105,16 @@ class Turtle:
         self.gameID = gameID
         self.parentID = parentID
 
+        # two lists to store the turtle's messages and the command queue
         self.queue = []
         self.messages = []
 
+        # the current task of the turtle
         self.task = "coaling"
+
+        # these values will store the x or z offset value for the block in front of the turtle
+        self.x_offset = 0
+        self.z_offset = 0
 
         # if this turtle is not recovering from json
         if is_recovering == False:
@@ -136,14 +142,8 @@ class Turtle:
 
 
     async def main(self):
-        
-        if self.task == "idle":
-            self.idle()
-            
-        elif self.task == "coaling":
-            self.coaling()
 
-        
+        # if there are commands in the queue, execute them
         if len(self.queue) > 0:
             # gets the next command to execute from the stack
             command = self.queue.pop(0)
@@ -152,9 +152,19 @@ class Turtle:
             await self.exec(command)
             await self.recv()
 
+        # if the queue is empty, allow new commands to be queued
+        else:
+
+            if self.task == "idle":
+                self.idle()
+
+            elif self.task == "coaling":
+                self.coaling()
 
 
 
+
+    # turtle will prioritize mining for coal
     def coaling(self, offset: int=0):
         if self.x < 56 + offset:
             self.up(True)
@@ -197,11 +207,13 @@ class Turtle:
     def queue_instruction(self, instructions: str):
         self.queue.append(instructions)
 
+    # moves the turtle forward, optionally digs
     def forward(self, dig: bool=False):
         if dig:
             self.dig()
         self.queue_instruction("turtle.forward()")
 
+    # moves the turtle backwards
     def back(self):
         self.queue_instruction("turtle.back()")
 
@@ -210,11 +222,13 @@ class Turtle:
         for i in range(turns):
             self.queue_instruction(f"turtle.turn{direction.capitalize()}()")
 
+    # moves the turtle up, optionally digs
     def up(self, dig: bool=False):
         if dig:
             self.dig("up")
         self.queue_instruction("turtle.up()")
 
+    # moves the turtle down, optionally digs
     def down(self, dig: bool=False):
         if dig:
             self.dig("down")
@@ -225,6 +239,20 @@ class Turtle:
         self.queue_instruction(f"turtle.dig{direction.capitalize()}()")
 
 
+    # handles the x and z offset for in front of the turtle
+    def handle_offset(self):
+        self.x_offset = 0
+        self.z_offset = 0
+
+        if self.heading == 0:
+            self.z_offset = -1
+        elif self.heading == 1:
+            self.x_offset = 1
+        elif self.heading == 2:
+            self.z_offset = 1
+        elif self.heading == 3:
+            self.x_offset = -1
+
 
     # handles coordinate and heading updates when moving
     def handle_movement(self, command: str, status: bool):
@@ -233,25 +261,13 @@ class Turtle:
 
         # handles turtle forward movement
         if command == "turtle.forward()" and status:
-            if self.heading == 0:
-                self.z -= 1
-            elif self.heading == 1:
-                self.x += 1
-            elif self.heading == 2:
-                self.z += 1
-            elif self.heading == 3:
-                self.x -= 1
+            self.x += self.x_offset
+            self.z += self.z_offset
 
         # handles turtle reverse movement
         elif command == "turtle.back()" and status:
-            if self.heading == 0:
-                self.z += 1
-            elif self.heading == 1:
-                self.x -= 1
-            elif self.heading == 2:
-                self.z -= 1
-            elif self.heading == 3:
-                self.x += 1
+            self.x += self.x_offset * -1
+            self.z += self.z_offset * -1
 
         # handles turtle vertical movement
         elif command == "turtle.up()" and status:
@@ -292,20 +308,13 @@ class Turtle:
         # add the json object to the message queue
         self.messages.insert(0, data_json)
 
-            # tell the mcp the turtle's position in 3d space
+        # tell the mcp the turtle's position in 3d space
         self.master_control_program.set_block(self.x, self.y, self.z, "computercraft:turtle_normal")
 
         # give mcp newly discovered world data
         self.master_control_program.set_block(self.x, self.y - 1, self.z, data_json["down"])
 
-        if self.heading == 0:
-            self.master_control_program.set_block(self.x, self.y, self.z - 1, data_json["front"])
-        elif self.heading == 1:
-            self.master_control_program.set_block(self.x + 1, self.y, self.z, data_json["front"])
-        elif self.heading == 2:
-            self.master_control_program.set_block(self.x, self.y, self.z + 1, data_json["front"])
-        elif self.heading == 3:
-            self.master_control_program.set_block(self.x - 1, self.y, self.z , data_json["front"])
+        self.master_control_program.set_block(self.x + self.x_offset, self.y, self.z + self.z_offset, data_json["front"])
 
         self.master_control_program.set_block(self.x, self.y + 1, self.z, data_json["up"])
 
@@ -363,19 +372,11 @@ class Turtle:
 
     def parent_exists(self):
         self.heading = self.parent.heading
+
+        self.handle_offset()
         # correctly gives world coordinates based on heading
-        if self.heading == 0:
-            self.x = self.parent.x
-            self.z = self.parent.z - 1
-        elif self.heading == 1:
-            self.z = self.parent.z
-            self.x = self.parent.x + 1
-        elif self.heading == 2:
-            self.x = self.parent.x
-            self.z = self.parent.z + 1
-        elif self.heading == 3:
-            self.z = self.parent.z
-            self.x = self.parent.x - 1
+        self.x = self.parent.x + self.x_offset * -1
+        self.z = self.parent.z + self.z_offset * -1
 
         self.y = self.parent.y
 
