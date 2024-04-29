@@ -8,10 +8,7 @@ from mcp import Master_Control_Program
 
 class Server:
 
-    def __init__(self, 
-                 json_manager: Json_Manager, 
-                 mcp: Master_Control_Program
-                 ):
+    def __init__(self, json_manager: Json_Manager, mcp: Master_Control_Program):
 
         # defines the json manager and mcp
         self.mcp = mcp
@@ -71,14 +68,9 @@ class Server:
                     parent = self.mcp.find_turtle(neo_parent_id)
 
                     # create new instance with stored data
-                    turtle = Turtle(
-                        websocket=websocket, 
-                        master_control_program=self.mcp,
-                        parent=parent, 
-                        gameID=turtle_id, 
-                        parentID=neo_parent_id, 
-                        json=turtle_json, 
-                        is_recovering=True)
+                    turtle = Turtle(websocket=websocket, master_control_program=self.mcp, parent=parent, 
+                                    gameID=turtle_id,  parentID=neo_parent_id, json=turtle_json, 
+                                    is_recovering=True)
 
                     # add the turtle to the arrays of turtles
                     self.mcp.add_turtle(turtle)
@@ -89,12 +81,8 @@ class Server:
 
                 parent = self.mcp.find_turtle(parent_id)
 
-                turtle = Turtle(
-                    websocket=websocket, 
-                    master_control_program=self.mcp,
-                    parent=parent, 
-                    gameID=turtle_id,
-                    coords=self.mcp.get_start_coords())
+                turtle = Turtle(websocket=websocket, master_control_program=self.mcp, parent=parent, 
+                                gameID=turtle_id, coords=self.mcp.get_start_coords())
 
                 self.mcp.add_turtle(turtle)
                 await turtle.set_name()
