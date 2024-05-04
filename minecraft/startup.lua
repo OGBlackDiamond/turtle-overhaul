@@ -41,7 +41,7 @@ function getItemIndex(itemName)
             if(item["name"] == itemName) then
                 return slot
             end
-         end
+        end
     end
     return -1
 end
