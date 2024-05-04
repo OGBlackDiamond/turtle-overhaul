@@ -140,24 +140,33 @@ function mineValuables()
     -- mine up
     for index, value in ipairs(VALUABLE_RESOURCES) do
         if value == up then
-            turtle.select(getItemIndex(up))
-            turtle.digUp()
+            local index = getItemIndex(up)
+            if index ~= nil then
+                turtle.select(index)
+                turtle.digUp()
+            end
         end
     end
 
     -- mine forward
     for index, value in ipairs(VALUABLE_RESOURCES) do
         if value == forward then
-            turtle.select(getItemIndex(forward))
-            turtle.dig()
+            local index = getItemIndex(forward)
+            if index ~= nil then
+                turtle.select(index)
+                turtle.dig()
+            end
         end
     end
 
     -- mine down
     for index, value in ipairs(VALUABLE_RESOURCES) do
         if value == down then
-            turtle.select(getItemIndex(down))
-            turtle.digDown()
+            local index = getItemIndex(down)
+            if index ~= nil then
+                turtle.select(index)
+                turtle.digDown()
+            end
         end
     end
 end
