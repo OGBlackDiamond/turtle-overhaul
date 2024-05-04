@@ -20,6 +20,13 @@ TRUST_MESSAGE = "shake-my-hand-bro"
 -- create disconnect message
 DISCONNECT_MESSAGE = "END-OF-LINE"
 
+VALUABLE_RESOURCES = {"minecraft:coal_ore", "minecraft:deepslate_coal_ore", 
+                        "minecraft:iron_ore", "minecraft:deepslate_iron_ore",
+                        "minecraft:gold_ore", "minecraft:deepslate_gold_ore",
+                        "minecraft:redstone_ore", "minecraft:deepslate_redstone_ore",
+                        "minecraft:diamond_ore", "minecraft:deepslate_diamond_ore",
+                        "minecraft:lapis_ore", "minecraft:deepslate_lapis_ore"}
+
 -- disconnects the client from the server
 function disconnect()
     ws.send(DISCONNECT_MESSAGE)
@@ -66,7 +73,7 @@ function inspectBlock(direction)
 end
 
 -- sets the name of the turtle
-function set_name(name_data)
+function setName(name_data)
     -- set the turtle name
     os.setComputerLabel(string.format("%s-%.2f", name_data, VERSION))
 end
@@ -124,13 +131,43 @@ function clone()
     end
 end
 
+-- will mine for any valuable resources when moving
+function mineValuables() {
+    local up = turtle.inspectUp()
+    local forward = turtle.inspect()
+    local down = turtle.inspectDown()
+
+    -- mine up
+    for index, value in ipairs(VALUABLE_RESOURCES) do
+        if value == up then
+            turtle.select(getItemIndex(up))
+            turtle.digUp()
+        end
+    end
+
+    -- mine forward
+    for index, value in ipairs(VALUABLE_RESOURCES) do
+        if value == forward then
+            turtle.select(getItemIndex(forward))
+            turtle.dig()
+        end
+    end
+
+    -- mien down
+    for index, value in ipairs(VALUABLE_RESOURCES) do
+        if value == down then
+            turtle.select(getItemIndex(down))
+            turtle.digDown()
+        end
+    end
+}
 
 
 --[[
     The main function of the websocket
     This is in a method because it will be called after the parent data has been aquired from its maker
 --]]
-function websocket_start(turtleID, parentID)
+function websocketStart(turtleID, parentID)
     -- connect to the server
     repeat
         print("attempting websocket connection")
@@ -174,7 +211,7 @@ function websocket_start(turtleID, parentID)
 
             -- sets the name to data_content
             elseif data_type == TYPE_NAME then
-                set_name(data_content)
+                setName(data_content)
 
             -- the message recieved did not have a recognizable type
             else
@@ -189,6 +226,8 @@ function websocket_start(turtleID, parentID)
         elseif status == false or status == 0 then
             res_status = FALSE
         end
+
+        mineValuables()
 
         -- gets the names and counts of the inveneto
         local inv_names, inv_counts = getInventory()
@@ -245,4 +284,4 @@ else
 end
 
 -- start the websocket
-websocket_start(turtleID, parentID)
+websocketStart(turtleID, parentID)
