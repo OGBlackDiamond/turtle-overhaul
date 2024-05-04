@@ -132,7 +132,7 @@ function clone()
 end
 
 -- will mine for any valuable resources when moving
-function mineValuables() {
+function mineValuables() 
     local up = turtle.inspectUp()
     local forward = turtle.inspect()
     local down = turtle.inspectDown()
@@ -153,14 +153,14 @@ function mineValuables() {
         end
     end
 
-    -- mien down
+    -- mine down
     for index, value in ipairs(VALUABLE_RESOURCES) do
         if value == down then
             turtle.select(getItemIndex(down))
             turtle.digDown()
         end
     end
-}
+end
 
 
 --[[
