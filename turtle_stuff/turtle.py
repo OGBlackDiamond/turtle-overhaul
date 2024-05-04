@@ -36,11 +36,9 @@ class Turtle:
     task: str
     
     startx: int
-    staryz: int
+    startz: int
     
     is_deep: bool
-    
-    ticker: int
 
     x: int
     y: int
@@ -71,17 +69,20 @@ class Turtle:
         self.queue = []
         self.messages = []
 
+        self.fuel = 0
+
         # the current task of the turtle
-        self.task = "coaling"
+        self.task = "idle"
 
         # point where tunnling starts
         self.startx = 0
-        self.staryz = 0
+        self.startz = 0
+
+        # fuel value at the start of the mining section
+        self.start_fuel = 0
 
         # bool if the turtle can start tunneling
         self.is_deep = False;
-
-        self.ticker = 0;
 
         # these values will store the x or z offset value for the block in front of the turtle
         self.x_offset = 0
@@ -133,10 +134,9 @@ class Turtle:
                 self.idle()
 
             elif self.task == "coaling":
-                if self.mine(yval=56, yoffset=self.y_offset):
+                if self.mine(yval=56, yoffset=self.y_offset, returning=self.fuel < self.start_fuel * (7 / 8)):
                     self.y_offset += 2
-
-
+                    self.is_deep = False
 
 
     # turtle will prioritize mining for coal
@@ -150,25 +150,30 @@ class Turtle:
             self.turn(turns=4)
 
         else:
+            print(f"X - Start: {self.startx}\nCurrent: {self.x}")
+            print(f"Z - Start: {self.startz}\nCurrent: {self.z}")
             if not self.is_deep:
                 self.startx = self.x;
-                self.staryz = self.z;
+                self.startz = self.z;
+                self.start_fuel = self.fuel
                 self.is_deep = True;
+                return False
 
             if returning:
-                if self.go_to(self.startx, self.y, self.staryz):
+                if self.go_to(self.startx, self.y, self.startz):
+                    self.turn(turns=2)
                     self.up(True)
                     self.up(True)
                     self.turn("left")
                     self.forward(True)
-                    self.turn("left")
+                    self.turn("right")
                     return True
             else:
                 self.forward(True)
                 self.turn()
                 self.turn("left", 2)
                 self.turn()
-                
+
         return False
 
     # basic idle function, turtle will simply spin in place
@@ -183,8 +188,8 @@ class Turtle:
             return True
 
 
-        if self.ticker % 2 == 0:
-            if self.abs(self.x - x) < self.abs(self.x + self.x_offset - x):
+        if self.x != x:
+            if self.sign(self.x_offset) != self.sign(x):
                 self.turn(turns=2)
             elif self.abs(self.x - x) == self.abs(self.x + self.x_offset - x):
                 if self.x > x:
@@ -192,7 +197,7 @@ class Turtle:
                 else:
                     self.turn("right")
         else:
-            if self.abs(self.z - z) < self.abs(self.z + self.z_offset - z):
+            if self.sign(self.z_offset) != self.sign(z):
                 self.turn(turns=2)
             elif self.abs(self.z - z) == self.abs(self.z + self.z_offset - z):
                 if self.z > z:
@@ -277,6 +282,8 @@ class Turtle:
 
         command = command[7:]
 
+        self.handle_offset()
+
         # handles turtle forward movement
         if command == "turtle.forward()" and status:
             self.x += self.x_offset
@@ -341,6 +348,8 @@ class Turtle:
         # parse the json for the status
         status = data_json["return"]["status"]
 
+        self.fuel = data_json["fuel"]
+
         # returns a python boolean value
         if status == TRUE:
             status = True
@@ -367,6 +376,12 @@ class Turtle:
             return num
         else:
             return num * -1
+
+    def sign(self, num: int):
+        if num > 0:
+            return 1
+        else:
+            return -1
 
     # sends formatted name data
     async def set_name(self):
