@@ -43,6 +43,7 @@ function getItemIndex(itemName)
 			end
 		end
 	end
+    return -1
 end
 
 -- returns two arrays, one with the names of each block, and one with the count
@@ -141,10 +142,10 @@ function mineValuables()
     for index, value in ipairs(VALUABLE_RESOURCES) do
         if value == up then
             local index = getItemIndex(up)
-            if index ~= nil then
+            if index ~= -1 then
                 turtle.select(index)
-                turtle.digUp()
             end
+            turtle.digUp()
         end
     end
 
@@ -152,10 +153,10 @@ function mineValuables()
     for index, value in ipairs(VALUABLE_RESOURCES) do
         if value == forward then
             local index = getItemIndex(forward)
-            if index ~= nil then
+            if index ~= -1 then
                 turtle.select(index)
-                turtle.dig()
             end
+            turtle.dig()
         end
     end
 
@@ -163,10 +164,10 @@ function mineValuables()
     for index, value in ipairs(VALUABLE_RESOURCES) do
         if value == down then
             local index = getItemIndex(down)
-            if index ~= nil then
+            if index ~= -1 then
                 turtle.select(index)
-                turtle.digDown()
             end
+            turtle.digDown()
         end
     end
 end
