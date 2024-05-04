@@ -35,14 +35,14 @@ end
 
 -- gets the index of an item
 function getItemIndex(itemName)
-	for slot = 1, 16, 1 do
-		local item = turtle.getItemDetail(slot)
-		if(item ~= nil) then
-			if(item["name"] == itemName) then
-				return slot
-			end
-		end
-	end
+    for slot = 1, 16, 1 do
+        local item = turtle.getItemDetail(slot)
+        if(item ~= nil) then
+            if(item["name"] == itemName) then
+                return slot
+            end
+         end
+    end
     return -1
 end
 
