@@ -133,9 +133,9 @@ end
 
 -- will mine for any valuable resources when moving
 function mineValuables() 
-    local up = turtle.inspectUp()
-    local forward = turtle.inspect()
-    local down = turtle.inspectDown()
+    local up = inspectBlock("Up")
+    local forward = inspectBlock()
+    local down = inspectBlock("Down")
 
     -- mine up
     for index, value in ipairs(VALUABLE_RESOURCES) do
