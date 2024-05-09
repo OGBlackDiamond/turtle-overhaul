@@ -20,12 +20,20 @@ TRUST_MESSAGE = "shake-my-hand-bro"
 -- create disconnect message
 DISCONNECT_MESSAGE = "END-OF-LINE"
 
-VALUABLE_RESOURCES = {"minecraft:coal_ore", "minecraft:deepslate_coal_ore", 
-                        "minecraft:iron_ore", "minecraft:deepslate_iron_ore",
-                        "minecraft:gold_ore", "minecraft:deepslate_gold_ore",
-                        "minecraft:redstone_ore", "minecraft:deepslate_redstone_ore",
-                        "minecraft:diamond_ore", "minecraft:deepslate_diamond_ore",
-                        "minecraft:lapis_ore", "minecraft:deepslate_lapis_ore"}
+VALUABLE_RESOURCES = {
+    "minecraft:coal_ore",
+    "minecraft:deepslate_coal_ore",
+    "minecraft:iron_ore",
+    "minecraft:deepslate_iron_ore",
+    "minecraft:gold_ore",
+    "minecraft:deepslate_gold_ore",
+    "minecraft:redstone_ore",
+    "minecraft:deepslate_redstone_ore",
+    "minecraft:diamond_ore",
+    "minecraft:deepslate_diamond_ore",
+    "minecraft:lapis_ore",
+    "minecraft:deepslate_lapis_ore",
+}
 
 -- disconnects the client from the server
 function disconnect()
@@ -37,8 +45,8 @@ end
 function getItemIndex(itemName)
     for slot = 1, 16, 1 do
         local item = turtle.getItemDetail(slot)
-        if(item ~= nil) then
-            if(item["name"] == itemName) then
+        if item ~= nil then
+            if item["name"] == itemName then
                 return slot
             end
         end
@@ -53,7 +61,7 @@ function getInventory()
 
     for slot = 1, 16, 1 do
         local item = turtle.getItemDetail(slot)
-        if (item ~= nil) then
+        if item ~= nil then
             names[slot] = item["name"]
             counts[slot] = item["count"]
         else
@@ -94,7 +102,11 @@ function clone()
 
     -- updates the boot file
     shell.run("rm", "disk/startup.lua")
-    local step3 = shell.run("wget", "https://raw.githubusercontent.com/OGBlackDiamond/turtle-overhaul/main/minecraft/startup.lua", "disk/startup.lua")
+    local step3 = shell.run(
+        "wget",
+        "https://raw.githubusercontent.com/OGBlackDiamond/turtle-overhaul/main/minecraft/startup.lua",
+        "disk/startup.lua"
+    )
 
     -- updates turtle
     shell.run("cp", "disk/startup.lua", "startup.lua")
@@ -133,7 +145,7 @@ function clone()
 end
 
 -- will mine for any valuable resources when moving
-function mineValuables() 
+function mineValuables()
     local up = inspectBlock("Up")
     local forward = inspectBlock()
     local down = inspectBlock("Down")
@@ -172,7 +184,6 @@ function mineValuables()
     end
 end
 
-
 --[[
     The main function of the websocket
     This is in a method because it will be called after the parent data has been aquired from its maker
@@ -184,7 +195,6 @@ function websocketStart(turtleID, parentID)
         sleep(2)
         ws, err = http.websocket(HOST .. ":" .. PORT)
     until ws ~= false
-
 
     -- sends the secondary handshake
     ws.send(TRUST_MESSAGE)
@@ -198,7 +208,6 @@ function websocketStart(turtleID, parentID)
 
     -- MAIN CODE
     while true do
-
         -- gets a message from the server and setds a defualt response value
         local data = ws.receive(5)
 
@@ -215,19 +224,18 @@ function websocketStart(turtleID, parentID)
                 command = loadstring(data_content)
                 status, return_data = command()
 
-            -- performs a clone
+                -- performs a clone
             elseif data == TYPE_CLONE then
                 status = clone()
 
-            -- sets the name to data_content
+                -- sets the name to data_content
             elseif data_type == TYPE_NAME then
                 setName(data_content)
 
-            -- the message recieved did not have a recognizable type
+                -- the message recieved did not have a recognizable type
             else
                 print("Unrecognized data formatting")
             end
-
         end
 
         -- send the response of the command into something the server can read
@@ -243,7 +251,8 @@ function websocketStart(turtleID, parentID)
         local inv_names, inv_counts = getInventory()
 
         -- compiles the static data being sent to the server in a payload
-        local payload = string.format([[
+        local payload = string.format(
+            [[
             {
                 "return": {
                     "status": "%s",
@@ -266,7 +275,9 @@ function websocketStart(turtleID, parentID)
 
         -- appends each inventory slot to the json package
         for i = 1, 16, 1 do
-            payload = payload .. string.format('\n\t\t"slot%d": {"name": "%s", "count": %d}', i, inv_names[i], inv_counts[i]) .. (i ~= 16 and "," or "\n\t}") 
+            payload = payload
+                .. string.format('\n\t\t"slot%d": {"name": "%s", "count": %d}', i, inv_names[i], inv_counts[i])
+                .. (i ~= 16 and "," or "\n\t}")
         end
         payload = payload .. "\n}"
 
@@ -288,10 +299,11 @@ if turtle_name == nil then
     parentID = peripheral.call("back", "getID")
     -- copies data to turtle
     shell.run("cp", "disk/startup.lua", "/startup.lua")
-else 
+else
     -- if the name is set, we know it has connected, and it will be reconnected
     parentID = -1
 end
 
 -- start the websocket
 websocketStart(turtleID, parentID)
+

@@ -1,7 +1,10 @@
-from websockets.sync.server import ServerConnection
 import json
 
-# sets the message that will indicate a disconnection 
+from websockets.sync.server import ServerConnection
+
+from mcp import Master_Control_Program
+
+# sets the message that will indicate a disconnection
 DISCONNECT_MESSAGE = "END-OF-LINE"
 
 # defines data types used to identify outgoing data
@@ -22,23 +25,34 @@ south = 2
 west = 3
 """
 
+
 class Turtle:
 
     connected: bool
     websocket: ServerConnection
+    master_control_program: Master_Control_Program
 
     gameID: int
     parentID: int
 
     queue: list[str]
     messages: list[dict]
-    
+
+    fuel: int
+
     task: str
-    
+
     startx: int
     startz: int
-    
+
+    start_fuel: int
+
     is_deep: bool
+
+    x_offset: int
+    y_offset: int
+
+    z_offset: int
 
     x: int
     y: int
@@ -49,14 +63,22 @@ class Turtle:
     type: str
     pyd_pos: int
 
-    task:str
+    task: str
 
-    def __init__(self, websocket: ServerConnection, master_control_program,
-                 parent, gameID: int, parentID: int=-1,
-                 coords: list[int]=[0, 0, 0], json: dict={}, is_recovering: bool=False):
+    def __init__(
+        self,
+        websocket: ServerConnection,
+        master_control_program: Master_Control_Program,
+        parent,
+        gameID: int,
+        parentID: int = -1,
+        coords: list[int] = [0, 0, 0],
+        json: dict = {},
+        is_recovering: bool = False,
+    ):
 
         # the connection satatus of the turtle, its websocket, and parent object
-        self.connected = True;
+        self.connected = True
         self.websocket = websocket
         self.master_control_program = master_control_program
         self.parent = parent
@@ -82,7 +104,7 @@ class Turtle:
         self.start_fuel = 0
 
         # bool if the turtle can start tunneling
-        self.is_deep = False;
+        self.is_deep = False
 
         # these values will store the x or z offset value for the block in front of the turtle
         self.x_offset = 0
@@ -106,15 +128,11 @@ class Turtle:
 
         # turtle recovery from json
         else:
-           self.recover_from_json(json)
+            self.recover_from_json(json)
 
-
-
-
-###########################
-##### MAIN CODE START #####
-###########################
-
+    ###########################
+    ##### MAIN CODE START #####
+    ###########################
 
     async def main(self):
 
@@ -134,13 +152,16 @@ class Turtle:
                 self.idle()
 
             elif self.task == "coaling":
-                if self.mine(yval=56, yoffset=self.y_offset, returning=self.fuel < self.start_fuel * (7 / 8)):
-                    self.y_offset += 2
+                if self.mine(
+                    yval=56,
+                    yoffset=self.y_offset,
+                    returning=self.fuel < self.start_fuel * (7 / 8),
+                ):
+                    self.y_offset+= 2
                     self.is_deep = False
 
-
     # turtle will prioritize mining for coal
-    def mine(self, yval: int=0, yoffset: int=0, returning: bool=False):
+    def mine(self, yval: int = 0, yoffset: int = 0, returning: bool = False):
         if self.y < yval + yoffset:
             self.up(True)
             self.turn(turns=4)
@@ -153,10 +174,10 @@ class Turtle:
             print(f"X - Start: {self.startx}\nCurrent: {self.x}")
             print(f"Z - Start: {self.startz}\nCurrent: {self.z}")
             if not self.is_deep:
-                self.startx = self.x;
-                self.startz = self.z;
+                self.startx = self.x
+                self.startz = self.z
                 self.start_fuel = self.fuel
-                self.is_deep = True;
+                self.is_deep = True
                 return False
 
             if returning:
@@ -180,13 +201,10 @@ class Turtle:
     def idle(self):
         self.turn()
 
-
-
     def go_to(self, x, y, z):
 
         if self.x == x and self.y == y and self.z == z:
             return True
-
 
         if self.x != x:
             if self.sign(self.x_offset) != self.sign(x):
@@ -214,16 +232,9 @@ class Turtle:
 
         return False
 
-
-
-
-
-
-#######################################
-########## BOILERPLATE CODE ###########
-#######################################
-
-
+    #######################################
+    ########## BOILERPLATE CODE ###########
+    #######################################
 
     # series of functions that give the turtle direct instructuons
     # this is simply to make my life programming easier
@@ -231,7 +242,7 @@ class Turtle:
         self.queue.append(instructions)
 
     # moves the turtle forward, optionally digs
-    def forward(self, dig: bool=False):
+    def forward(self, dig: bool = False):
         if dig:
             self.dig()
         self.queue_instruction("turtle.forward()")
@@ -241,26 +252,25 @@ class Turtle:
         self.queue_instruction("turtle.back()")
 
     # options: right, left
-    def turn(self, direction: str="right", turns: int=1):
+    def turn(self, direction: str = "right", turns: int = 1):
         for i in range(turns):
             self.queue_instruction(f"turtle.turn{direction.capitalize()}()")
 
     # moves the turtle up, optionally digs
-    def up(self, dig: bool=False):
+    def up(self, dig: bool = False):
         if dig:
             self.dig("up")
         self.queue_instruction("turtle.up()")
 
     # moves the turtle down, optionally digs
-    def down(self, dig: bool=False):
+    def down(self, dig: bool = False):
         if dig:
             self.dig("down")
         self.queue_instruction("turtle.down()")
 
     # options: "", up, down
-    def dig(self, direction: str=""):
+    def dig(self, direction: str = ""):
         self.queue_instruction(f"turtle.dig{direction.capitalize()}()")
-
 
     # handles the x and z offset for in front of the turtle
     def handle_offset(self):
@@ -275,7 +285,6 @@ class Turtle:
             self.z_offset = 1
         elif self.heading == 3:
             self.x_offset = -1
-
 
     # handles coordinate and heading updates when moving
     def handle_movement(self, command: str, status: bool):
@@ -298,7 +307,7 @@ class Turtle:
         elif command == "turtle.up()" and status:
             self.y += 1
         elif command == "turtle.down()" and status:
-            self.y -= 1;
+            self.y -= 1
 
         # handles rotations
         elif command == "turtle.turnRight()" and status:
@@ -309,9 +318,9 @@ class Turtle:
         # handles rotation overflow
         self.heading %= 4
 
-    # handles message sending 
+    # handles message sending
     async def exec(self, message: str):
-        await self.websocket.send(f"{TYPE_EXEC}return {message}") #type: ignore
+        await self.websocket.send(f"{TYPE_EXEC}return {message}")  # type: ignore
 
     # handles incoming messages
     async def recv(self):
@@ -319,13 +328,12 @@ class Turtle:
         if len(self.messages) > 5:
             self.messages.pop()
 
-        data = await self.websocket.recv() #type: ignore
+        data = await self.websocket.recv()  # type: ignore
 
         # if the turtle is disconnecting, disconnect
         if data == DISCONNECT_MESSAGE:
             self.connected = False
             return
-
 
         # loads the data as a json object
         data_json = json.loads(data)
@@ -334,16 +342,22 @@ class Turtle:
         self.messages.insert(0, data_json)
 
         # tell the mcp the turtle's position in 3d space
-        self.master_control_program.set_block(self.x, self.y, self.z, "computercraft:turtle_normal")
+        self.master_control_program.set_block(
+            self.x, self.y, self.z, "computercraft:turtle_normal"
+        )
 
         # give mcp newly discovered world data
-        self.master_control_program.set_block(self.x, self.y - 1, self.z, data_json["down"])
+        self.master_control_program.set_block(
+            self.x, self.y - 1, self.z, data_json["down"]
+        )
 
-        self.master_control_program.set_block(self.x + self.x_offset, self.y, self.z + self.z_offset, data_json["front"])
+        self.master_control_program.set_block(
+            self.x + self.x_offset, self.y, self.z + self.z_offset, data_json["front"]
+        )
 
-        self.master_control_program.set_block(self.x, self.y + 1, self.z, data_json["up"])
-
-
+        self.master_control_program.set_block(
+            self.x, self.y + 1, self.z, data_json["up"]
+        )
 
         # parse the json for the status
         status = data_json["return"]["status"]
@@ -358,7 +372,6 @@ class Turtle:
 
         # update odometry based on the command and its success
         self.handle_movement(data_json["return"]["command"], status)
-
 
         return status
 
@@ -385,22 +398,19 @@ class Turtle:
 
     # sends formatted name data
     async def set_name(self):
-        await self.websocket.send(f"{TYPE_NAME}{self.type}.{self.pyd_pos}-{self.ucount}") #type: ignore
+        await self.websocket.send(f"{TYPE_NAME}{self.type}.{self.pyd_pos}-{self.ucount}")  # type: ignore
 
     # sends the clone command
     async def clone(self):
-        await self.websocket.send(TYPE_CLONE) #type: ignore
+        await self.websocket.send(TYPE_CLONE)  # type: ignore
         # checks if the cloning succeeded or not
-        if await self.websocket.recv() == TRUE: #type: ignore
+        if await self.websocket.recv() == TRUE:  # type: ignore
             self.ucount += 1
             await self.set_name()
 
-
-
-
-#######################################
-######### CONSTRUCTOR OPTIONS #########
-#######################################
+    #######################################
+    ######### CONSTRUCTOR OPTIONS #########
+    #######################################
 
     def start_master(self, x: int, y: int, z: int):
         self.x = x

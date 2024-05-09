@@ -1,6 +1,8 @@
 import json
 import os
 
+from turtle_stuff.turtle import Turtle
+
 # interaction with data storage files happens through this class
 class Json_Manager:
 
@@ -42,7 +44,7 @@ class Json_Manager:
             file.write(json.dumps(world, indent=4))
 
     # parses data from the turtles it's passed and stores them in json
-    def save_turtle_data(self, turtles: list):
+    def save_turtle_data(self, turtles: list[Turtle]):
         turtle_json = {}
 
         # iderate over the turtles
