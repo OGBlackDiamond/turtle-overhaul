@@ -3,6 +3,7 @@ import os
 
 from turtle_stuff.turtle import Turtle
 
+
 # interaction with data storage files happens through this class
 class Json_Manager:
 
@@ -92,4 +93,3 @@ class Json_Manager:
     def restore_turtles(self) -> dict:
         with open(self.turtle_file, "r") as file:
             return json.loads(file.read())
-

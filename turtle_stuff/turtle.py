@@ -171,8 +171,6 @@ class Turtle:
             self.turn(turns=4)
 
         else:
-            print(f"X - Start: {self.startx}\nCurrent: {self.x}")
-            print(f"Z - Start: {self.startz}\nCurrent: {self.z}")
             if not self.is_deep:
                 self.startx = self.x
                 self.startz = self.z
@@ -201,11 +199,15 @@ class Turtle:
     def idle(self):
         self.turn()
 
-    def go_to(self, x, y, z):
+    # calling this will take one step to the specified coordinate point, x takes precedence
+    # returns true if turtle is at the given coordinates, false if not
+    def go_to(self, x, y, z) -> bool:
 
+        # reutrns true if the turtle is at the specified coordinates
         if self.x == x and self.y == y and self.z == z:
             return True
 
+        # checks if the x value of the turtle is correct, and moves accordingly if not
         if self.x != x:
             if self.sign(self.x_offset) != self.sign(x):
                 self.turn(turns=2)
@@ -214,6 +216,7 @@ class Turtle:
                     self.turn("left")
                 else:
                     self.turn("right")
+        # once the x value is correct, take steps to correct the z value
         else:
             if self.sign(self.z_offset) != self.sign(z):
                 self.turn(turns=2)
@@ -225,6 +228,7 @@ class Turtle:
 
         self.forward(True)
 
+        # moves the turtle to correct the y value
         if self.y > y:
             self.down(True)
         elif self.y < y:
@@ -253,7 +257,7 @@ class Turtle:
 
     # options: right, left
     def turn(self, direction: str = "right", turns: int = 1):
-        for i in range(turns):
+        for _ in range(turns):
             self.queue_instruction(f"turtle.turn{direction.capitalize()}()")
 
     # moves the turtle up, optionally digs
@@ -271,6 +275,19 @@ class Turtle:
     # options: "", up, down
     def dig(self, direction: str = ""):
         self.queue_instruction(f"turtle.dig{direction.capitalize()}()")
+
+    def check_inv(self, item: str) -> dict:
+        return_json= {
+            "count": -1,
+            "index": -1
+        }
+
+        for index, slot in enumerate(self.messages[0]["inventory"].values()):
+            if item == slot["name"]:
+                return_json["count"] = slot["count"]
+                return_json["index"] = index 
+
+        return return_json
 
     # handles the x and z offset for in front of the turtle
     def handle_offset(self):
@@ -308,8 +325,8 @@ class Turtle:
 
         # handles turtle reverse movement
         elif command == "turtle.back()" and status:
-            self.x += self.x_offset * -1
-            self.z += self.z_offset * -1
+            self.x -= self.x_offset
+            self.z -= self.z_offset
 
         # handles turtle vertical movement
         elif command == "turtle.up()" and status:
@@ -331,7 +348,7 @@ class Turtle:
         await self.websocket.send(f"{TYPE_EXEC}return {message}")  # type: ignore
 
     # handles incoming messages
-    async def recv(self):
+    async def recv(self) -> bool:
         # clears out message data so that there are only 5 messages in the list at a time
         if len(self.messages) > 5:
             self.messages.pop()
@@ -341,7 +358,7 @@ class Turtle:
         # if the turtle is disconnecting, disconnect
         if data == DISCONNECT_MESSAGE:
             self.connected = False
-            return
+            return True
 
         # loads the data as a json object
         data_json = json.loads(data)
@@ -374,6 +391,12 @@ class Turtle:
         self.master_control_program.set_block(
             self.x, self.y + 1, self.z, up if up != "nil" else "minecraft:air"
         )
+
+        # if there the turtle just moved past a space, set the block behind it to air
+        if self.messages[1]["return"]["command"] == "return turtle.forward()":
+            self.master_control_program.set_block(
+                self.x - self.x_offset, self.y, self.z - self.z_offset, "minecraft:air"
+            )
 
         # parse the json for the status
         status = data_json["return"]["status"]

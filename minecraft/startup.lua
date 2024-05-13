@@ -306,4 +306,3 @@ end
 
 -- start the websocket
 websocketStart(turtleID, parentID)
-
