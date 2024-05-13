@@ -26,7 +26,7 @@ class Master_Control_Program:
     # returns the block at the given x y z coordinates
     def get_block(self, x: int, y: int, z: int) -> str:
         try:
-            return self.world[f"{x}"][f"{y}"][f"{z}"]
+            return self.world[f"{x},{y},{z}"]
         except KeyError:
             print("[ERROR] Requested world block does not exist yet.")
             return "unknown"
@@ -34,91 +34,28 @@ class Master_Control_Program:
     # sets the block's value at the given x y z coordinates
     def set_block(self, x: int, y: int, z: int, value: str):
         try:
-            self.world[f"{x}"][f"{y}"][f"{z}"] = value
+            self.world[f"{x},{y},{z}"] = value
         except KeyError:
             print("[ERROR] World block does not exist yet.")
 
     def gen_world(self, turtle: Turtle):
         # loads new unknown block values in where the turtle could potentially detect and assign block values
-        self.world[f"{turtle.x}"] = self.world.get(
-            f"{turtle.x}",
-            {f"{turtle.y}": {f"{turtle.z}": "computercraft:turtle_normal"}},
+        self.world[f"{turtle.x},{turtle.y},{turtle.z}"] = self.world.get(
+            f"{turtle.x},{turtle.y},{turtle.z}", "computercraft:turtle_normal"
         )
 
-        self.world[f"{turtle.x - 1}"] = self.world.get(
-            f"{turtle.x - 1}", {f"{turtle.y}": {f"{turtle.z}": "unknown"}}
+        self.world[f"{turtle.x},{turtle.y + 1},{turtle.z}"] = self.world.get(
+            f"{turtle.x},{turtle.y + 1},{turtle.z}", "unknown"
         )
-        self.world[f"{turtle.x + 1}"] = self.world.get(
-            f"{turtle.x + 1}", {f"{turtle.y}": {f"{turtle.z}": "unknown"}}
-        )
-
-        self.world[f"{turtle.x}"][f"{turtle.y - 1}"] = self.world[f"{turtle.x}"].get(
-            f"{turtle.y - 1}", {f"{turtle.z}": "unknown"}
-        )
-        self.world[f"{turtle.x}"][f"{turtle.y + 1}"] = self.world[f"{turtle.x}"].get(
-            f"{turtle.y + 1}", {f"{turtle.z}": "unknown"}
+        self.world[f"{turtle.x},{turtle.y - 1},{turtle.z}"] = self.world.get(
+            f"{turtle.x},{turtle.y - 1},{turtle.z}", "unknown"
         )
 
-        self.world[f"{turtle.x - 1}"][f"{turtle.y - 1}"] = self.world[
-            f"{turtle.x - 1}"
-        ].get(f"{turtle.y - 1}", {f"{turtle.z}": "unknown"})
-        self.world[f"{turtle.x - 1}"][f"{turtle.y + 1}"] = self.world[
-            f"{turtle.x - 1}"
-        ].get(f"{turtle.y + 1}", {f"{turtle.z}": "unknown"})
-        self.world[f"{turtle.x + 1}"][f"{turtle.y - 1}"] = self.world[
-            f"{turtle.x + 1}"
-        ].get(f"{turtle.y - 1}", {f"{turtle.z}": "unknown"})
-        self.world[f"{turtle.x + 1}"][f"{turtle.y + 1}"] = self.world[
-            f"{turtle.x + 1}"
-        ].get(f"{turtle.y + 1}", {f"{turtle.z}": "unknown"})
-
-        self.world[f"{turtle.x}"][f"{turtle.y}"][f"{turtle.z - 1}"] = self.world[
-            f"{turtle.x}"
-        ][f"{turtle.y}"].get(f"{turtle.z - 1}", "unknown")
-        self.world[f"{turtle.x}"][f"{turtle.y}"][f"{turtle.z + 1}"] = self.world[
-            f"{turtle.x}"
-        ][f"{turtle.y}"].get(f"{turtle.z + 1}", "unknown")
-
-        self.world[f"{turtle.x + 1}"][f"{turtle.y + 1}"][f"{turtle.z - 1}"] = (
-            self.world[f"{turtle.x + 1}"][f"{turtle.y + 1}"].get(
-                f"{turtle.z - 1}", "unknown"
-            )
-        )
-        self.world[f"{turtle.x + 1}"][f"{turtle.y + 1}"][f"{turtle.z + 1}"] = (
-            self.world[f"{turtle.x + 1}"][f"{turtle.y + 1}"].get(
-                f"{turtle.z + 1}", "unknown"
-            )
-        )
-        self.world[f"{turtle.x - 1}"][f"{turtle.y + 1}"][f"{turtle.z - 1}"] = (
-            self.world[f"{turtle.x - 1}"][f"{turtle.y + 1}"].get(
-                f"{turtle.z - 1}", "unknown"
-            )
-        )
-        self.world[f"{turtle.x - 1}"][f"{turtle.y + 1}"][f"{turtle.z + 1}"] = (
-            self.world[f"{turtle.x - 1}"][f"{turtle.y + 1}"].get(
-                f"{turtle.z + 1}", "unknown"
-            )
-        )
-
-        self.world[f"{turtle.x + 1}"][f"{turtle.y - 1}"][f"{turtle.z - 1}"] = (
-            self.world[f"{turtle.x + 1}"][f"{turtle.y - 1}"].get(
-                f"{turtle.z - 1}", "unknown"
-            )
-        )
-        self.world[f"{turtle.x + 1}"][f"{turtle.y - 1}"][f"{turtle.z + 1}"] = (
-            self.world[f"{turtle.x + 1}"][f"{turtle.y - 1}"].get(
-                f"{turtle.z + 1}", "unknown"
-            )
-        )
-        self.world[f"{turtle.x - 1}"][f"{turtle.y - 1}"][f"{turtle.z - 1}"] = (
-            self.world[f"{turtle.x - 1}"][f"{turtle.y - 1}"].get(
-                f"{turtle.z - 1}", "unknown"
-            )
-        )
-        self.world[f"{turtle.x - 1}"][f"{turtle.y - 1}"][f"{turtle.z + 1}"] = (
-            self.world[f"{turtle.x - 1}"][f"{turtle.y - 1}"].get(
-                f"{turtle.z + 1}", "unknown"
-            )
+        self.world[
+            f"{turtle.x + turtle.getx_offset()},{turtle.y},{turtle.z + turtle.getz_offset()}"
+        ] = self.world.get(
+            f"{turtle.x + turtle.getx_offset()},{turtle.y},{turtle.z + turtle.getz_offset()}",
+            "unknown",
         )
 
     # adds a turtle to the array

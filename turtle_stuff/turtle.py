@@ -157,7 +157,7 @@ class Turtle:
                     yoffset=self.y_offset,
                     returning=self.fuel < self.start_fuel * (7 / 8),
                 ):
-                    self.y_offset+= 2
+                    self.y_offset += 2
                     self.is_deep = False
 
     # turtle will prioritize mining for coal
@@ -286,13 +286,13 @@ class Turtle:
         elif self.heading == 3:
             self.x_offset = -1
 
-
+    # returns the x offset
     def getx_offset(self):
         return self.x_offset
 
+    # return the z offset
     def getz_offset(self):
         return self.z_offset
-
 
     # handles coordinate and heading updates when moving
     def handle_movement(self, command: str, status: bool):
@@ -349,6 +349,11 @@ class Turtle:
         # add the json object to the message queue
         self.messages.insert(0, data_json)
 
+        # gets the blocks in front of the turtle
+        down = data_json["down"]
+        front = data_json["front"]
+        up = data_json["up"]
+
         # tell the mcp the turtle's position in 3d space
         self.master_control_program.set_block(
             self.x, self.y, self.z, "computercraft:turtle_normal"
@@ -356,20 +361,24 @@ class Turtle:
 
         # give mcp newly discovered world data
         self.master_control_program.set_block(
-            self.x, self.y - 1, self.z, data_json["down"]
+            self.x, self.y - 1, self.z, down if down != "nil" else "minecraft:air"
         )
 
         self.master_control_program.set_block(
-            self.x + self.x_offset, self.y, self.z + self.z_offset, data_json["front"]
+            self.x + self.x_offset,
+            self.y,
+            self.z + self.z_offset,
+            front if front != "nil" else "minecraft:air",
         )
 
         self.master_control_program.set_block(
-            self.x, self.y + 1, self.z, data_json["up"]
+            self.x, self.y + 1, self.z, up if up != "nil" else "minecraft:air"
         )
 
         # parse the json for the status
         status = data_json["return"]["status"]
 
+        # sets the fuel value
         self.fuel = data_json["fuel"]
 
         # returns a python boolean value
