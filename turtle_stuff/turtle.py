@@ -286,6 +286,14 @@ class Turtle:
         elif self.heading == 3:
             self.x_offset = -1
 
+
+    def getx_offset(self):
+        return self.x_offset
+
+    def getz_offset(self):
+        return self.z_offset
+
+
     # handles coordinate and heading updates when moving
     def handle_movement(self, command: str, status: bool):
 
