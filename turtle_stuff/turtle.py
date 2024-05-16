@@ -31,6 +31,7 @@ class Turtle:
     connected: bool
     websocket: ServerConnection
     master_control_program: Master_Control_Program
+    parent: 'Turtle'
 
     gameID: int
     parentID: int
@@ -69,7 +70,7 @@ class Turtle:
         self,
         websocket: ServerConnection,
         master_control_program: Master_Control_Program,
-        parent,
+        parent: 'Turtle',
         gameID: int,
         parentID: int = -1,
         coords: list[int] = [0, 0, 0],
@@ -144,7 +145,6 @@ class Turtle:
             # sends the command and awaits a response
             await self.exec(command)
             await self.recv()
-
         # if the queue is empty, allow new commands to be queued
         else:
 
