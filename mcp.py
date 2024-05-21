@@ -23,6 +23,16 @@ class Master_Control_Program:
         for turtle in self.turtles:
             self.gen_world(turtle)
 
+
+    def controller(self):
+        pass
+
+
+    #######################################
+    ########## BOILERPLATE CODE ###########
+    #######################################
+
+
     # returns the block at the given x y z coordinates
     def get_block(self, x: int, y: int, z: int) -> str:
         try:

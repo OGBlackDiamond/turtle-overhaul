@@ -240,6 +240,7 @@ class Turtle:
     ########## BOILERPLATE CODE ###########
     #######################################
 
+
     # series of functions that give the turtle direct instructuons
     # this is simply to make my life programming easier
     def queue_instruction(self, instructions: str):
