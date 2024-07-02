@@ -157,10 +157,13 @@ class Turtle:
                     yoffset=self.y_offset,
                     returning=self.fuel < self.start_fuel * (7 / 8),
                 ):
-                    self.y_offset += 2
+                    if self.y_offset >= 1:
+                        self.y_offset -= 1
+                    else:
+                        self.y_offset += 2
                     self.is_deep = False
 
-    # turtle will prioritize mining for coal
+    # turtle will prioritize mining at the indicated y level with the particular offset
     def mine(self, yval: int = 0, yoffset: int = 0, returning: bool = False):
         if self.y < yval + yoffset:
             self.up(True)
@@ -182,10 +185,17 @@ class Turtle:
                 if self.go_to(self.startx, self.y, self.startz):
                     self.turn(turns=2)
                     self.up(True)
-                    self.up(True)
-                    self.turn("left")
-                    self.forward(True)
-                    self.turn("right")
+                    if yoffset >= 1:
+                        self.turn("left")
+                        self.forward(True)
+                        self.forward(True)
+                        self.turn("right")
+                    else:
+                        self.up(True)
+                        self.turn("left")
+                        self.forward(True)
+                        self.turn("right")
+
                     return True
             else:
                 self.forward(True)
@@ -424,13 +434,14 @@ class Turtle:
     def get_queue_length(self):
         return len(self.queue)
 
-    # return the absolute value of the num
+    # return the absolute value of num
     def abs(self, num: int):
         if num > 0:
             return num
         else:
             return num * -1
 
+    # return the sign (+/-) of num
     def sign(self, num: int):
         if num > 0:
             return 1

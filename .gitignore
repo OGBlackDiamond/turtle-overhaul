@@ -1,5 +1,6 @@
 __pycache__/
-.vscode
+.vscode/
+.mypy_cache/
 turtle_stuff/json_dump.json
 
 
@@ -11,4 +12,4 @@ worlds/*
 
 test.py
 test.lua
-
+.luarc.json
