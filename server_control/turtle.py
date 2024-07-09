@@ -2,7 +2,10 @@ import json
 
 from websockets.sync.server import ServerConnection
 
-from mcp import Master_Control_Program
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from server_control.mcp import Master_Control_Program
 
 # sets the message that will indicate a disconnection
 DISCONNECT_MESSAGE = "END-OF-LINE"
@@ -30,7 +33,7 @@ class Turtle:
 
     connected: bool
     websocket: ServerConnection
-    master_control_program: Master_Control_Program
+    master_control_program: 'Master_Control_Program'
     parent: 'Turtle'
 
     gameID: int
@@ -69,7 +72,7 @@ class Turtle:
     def __init__(
         self,
         websocket: ServerConnection,
-        master_control_program: Master_Control_Program,
+        master_control_program: 'Master_Control_Program',
         parent: 'Turtle',
         gameID: int,
         parentID: int = -1,

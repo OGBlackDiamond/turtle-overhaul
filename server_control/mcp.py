@@ -1,12 +1,14 @@
 from websockets.sync.server import ServerConnection
 
-from turtle_stuff.turtle import Turtle
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from server_control.turtle import Turtle
 
 # this will handle all logic in the autonomous funciton of the turtle swarm
 class Master_Control_Program:
 
-    turtles: list[Turtle]
+    turtles: list['Turtle']
 
     starting_coords: list[int]
 
@@ -48,7 +50,7 @@ class Master_Control_Program:
         except KeyError:
             print("[ERROR] World block does not exist yet.")
 
-    def gen_world(self, turtle: Turtle):
+    def gen_world(self, turtle: 'Turtle'):
         # loads new unknown block values in where the turtle could potentially detect and assign block values
         self.world[f"{turtle.x},{turtle.y},{turtle.z}"] = self.world.get(
             f"{turtle.x},{turtle.y},{turtle.z}", "computercraft:turtle_normal"
@@ -69,11 +71,11 @@ class Master_Control_Program:
         )
 
     # adds a turtle to the array
-    def add_turtle(self, turtle: Turtle):
+    def add_turtle(self, turtle: 'Turtle'):
         self.turtles.append(turtle)
 
     # returns the array of turtles
-    def get_turtles(self) -> list[Turtle]:
+    def get_turtles(self) -> list['Turtle']:
         return self.turtles
 
     # returns the world
@@ -81,7 +83,7 @@ class Master_Control_Program:
         return self.world
 
     # returns a turtle with the given id
-    def find_turtle(self, id: int) -> Turtle:
+    def find_turtle(self, id: int) -> 'Turtle':
         # loops through the list of turtles
         for turtle in self.turtles:
             # returns the turtle that matches the id
@@ -91,7 +93,7 @@ class Master_Control_Program:
         return None  # type: ignore
 
     # sets the websocket class to the turtle at the given id
-    def set_websocket(self, websocket: ServerConnection, id: int) -> Turtle:
+    def set_websocket(self, websocket: ServerConnection, id: int) -> 'Turtle':
         for i in range(0, len(self.turtles)):
             if self.turtles[i].gameID == id:
                 self.turtles[i].websocket = websocket

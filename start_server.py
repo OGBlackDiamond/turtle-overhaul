@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 
-from mcp import Master_Control_Program
+from server_control.mcp import Master_Control_Program
 from server import Server
 from worlds.json_manager import Json_Manager
 

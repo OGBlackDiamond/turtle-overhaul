@@ -1,7 +1,7 @@
 import json
 import os
 
-from turtle_stuff.turtle import Turtle
+from server_control.turtle import Turtle
 
 
 # interaction with data storage files happens through this class

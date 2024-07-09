@@ -4,8 +4,8 @@ import aioconsole
 import websockets.server
 from websockets.sync.server import ServerConnection
 
-from mcp import Master_Control_Program
-from turtle_stuff.turtle import Turtle
+from server_control.mcp import Master_Control_Program
+from server_control.turtle import Turtle
 from worlds.json_manager import Json_Manager
 
 
