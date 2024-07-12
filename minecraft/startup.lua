@@ -35,6 +35,9 @@ VALUABLE_RESOURCES = {
     "minecraft:deepslate_lapis_ore",
 }
 
+
+
+
 -- disconnects the client from the server
 function disconnect()
     ws.send(DISCONNECT_MESSAGE)

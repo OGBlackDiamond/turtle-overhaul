@@ -29,12 +29,21 @@ parser.add_argument(
     help="The world name to create or load in.",
 )
 
+# allows the user to define the direction of the bounding box
+parser.add_argument(
+    "-b",
+    "--box_direction",
+    type=str,
+    default='x',
+    help="The direction along a coordinate plane (x/z) for which the bounding box will extend."
+)
+
 # parse arguments
 args = parser.parse_args()
 
 # creates a new server with json manager and mcp
 server = Server(
-    json_manager=Json_Manager(args.world), mcp=Master_Control_Program(args.coordinates)
+    json_manager=Json_Manager(args.world), mcp=Master_Control_Program(args.coordinates, args.box_direction)
 )
 
 # start server
