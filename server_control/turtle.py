@@ -212,9 +212,21 @@ class Turtle:
     def idle(self):
         self.turn()
 
+    # tells the turtle to move to the given coordinate points
+    def go_to(self, x, y, z):
+        for coordinate in self.line_3d(x, y, z):
+            while not self.step_to(coordinate[0], coordinate[1], coordinate[2]):
+                continue
+
+
+    #######################################
+    ########## BOILERPLATE CODE ###########
+    #######################################
+
+
     # calling this will take one step to the specified coordinate point, x takes precedence
     # returns true if turtle is at the given coordinates, false if not
-    def go_to(self, x, y, z) -> bool:
+    def step_to(self, x, y, z) -> bool:
 
         # reutrns true if the turtle is at the specified coordinates
         if self.x == x and self.y == y and self.z == z:
@@ -249,12 +261,77 @@ class Turtle:
 
         return False
 
-    #######################################
-    ########## BOILERPLATE CODE ###########
-    #######################################
 
+    # generates a list of coordinate points from the turtle's position to the target
+    def line_3d(self, x, y, z):
+        points = []
+        points.append((x, y, z))
+        dx = abs(self.x - x)
+        dy = abs(self.y - y)
+        dz = abs(self.z - z)
+        if (self.x > x):
+            xs = 1
+        else:
+            xs = -1
+        if (self.y > y):
+            ys = 1
+        else:
+            ys = -1
+        if (self.z > z):
+            zs = 1
+        else:
+            zs = -1
 
-    # series of functions that give the turtle direct instructuons
+        # Driving axis is X-axis"
+        if (dx >= dy and dx >= dz):	 
+            p1 = 2 * dy - dx
+            p2 = 2 * dz - dx
+            while (x != self.z):
+                x += xs
+                if (p1 >= 0):
+                    y += ys
+                    p1 -= 2 * dx
+                if (p2 >= 0):
+                    z += zs
+                    p2 -= 2 * dx
+                p1 += 2 * dy
+                p2 += 2 * dz
+                points.append((x, y, z))
+
+        # Driving axis is Y-axis"
+        elif (dy >= dx and dy >= dz):	 
+            p1 = 2 * dx - dy
+            p2 = 2 * dz - dy
+            while (y != self.y):
+                y += ys
+                if (p1 >= 0):
+                    x += xs
+                    p1 -= 2 * dy
+                if (p2 >= 0):
+                    z += zs
+                    p2 -= 2 * dy
+                p1 += 2 * dx
+                p2 += 2 * dz
+                points.append((x, y, z))
+
+        # Driving axis is Z-axis"
+        else:	 
+            p1 = 2 * dy - dz
+            p2 = 2 * dx - dz
+            while (z != self.z):
+                z += zs
+                if (p1 >= 0):
+                    y += ys
+                    p1 -= 2 * dz
+                if (p2 >= 0):
+                    x += xs
+                    p2 -= 2 * dz
+                p1 += 2 * dy
+                p2 += 2 * dx
+                points.append((x, y, z))
+        return points
+
+    # series of functions that give the turtle direct instructions
     # this is simply to make my life programming easier
     def queue_instruction(self, instructions: str):
         self.queue.append(instructions)
