@@ -215,8 +215,7 @@ class Turtle:
     # tells the turtle to move to the given coordinate points
     def go_to(self, x, y, z):
         for coordinate in self.line_3d(x, y, z):
-            while not self.step_to(coordinate[0], coordinate[1], coordinate[2]):
-                continue
+            while not self.step_to(coordinate[0], coordinate[1], coordinate[2]): continue
 
 
     #######################################
