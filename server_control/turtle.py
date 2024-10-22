@@ -12,6 +12,7 @@ DISCONNECT_MESSAGE = "END-OF-LINE"
 
 # defines data types used to identify outgoing data
 TYPE_EXEC = "[e]"
+TYPE_MINE = "[m]"
 TYPE_CLONE = "[c]"
 TYPE_NAME = "[n]"
 
@@ -213,13 +214,17 @@ class Turtle:
         self.turn()
 
     # tells the turtle to move to the given coordinate points
-    def go_to(self, x, y, z):
+    def go_to(self, x: int, y: int, z: int):
         for coordinate in self.line_3d(x, y, z):
             while not self.step_to(coordinate[0], coordinate[1], coordinate[2]): continue
 
+    def tunnel(self, length: int, search: bool=True):
+        for _ in range(length):
+            if search : self.mine_valuables()
+            self.forward()
 
     #######################################
-    ########## BOILERPLATE CODE ###########
+    ############# HELPER CODE #############
     #######################################
 
 
@@ -328,6 +333,7 @@ class Turtle:
                 p1 += 2 * dy
                 p2 += 2 * dx
                 points.append((x, y, z))
+
         return points
 
     # series of functions that give the turtle direct instructions
@@ -361,6 +367,10 @@ class Turtle:
         if dig:
             self.dig("down")
         self.queue_instruction("turtle.down()")
+
+    # tells the turtle to check and mine if valuables are near
+    def mine_valuables(self):
+        self.queue_instruction(TYPE_MINE)
 
     # options: "", up, down
     def dig(self, direction: str = ""):
@@ -512,6 +522,9 @@ class Turtle:
     # returns the length of the queue
     def get_queue_length(self):
         return len(self.queue)
+
+    def checkFuel(self, used: int) -> bool:
+        return self.fuel >= used
 
     # return the absolute value of num
     def abs(self, num: int):

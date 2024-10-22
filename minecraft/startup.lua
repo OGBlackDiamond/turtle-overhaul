@@ -7,6 +7,7 @@ PORT = "3000"
 
 -- defines data types used to identify how incoming data should be interpreted
 TYPE_EXEC = "[e]"
+TYPE_MINE = "[m]"
 TYPE_CLONE = "[c]"
 TYPE_NAME = "[n]"
 
@@ -153,8 +154,9 @@ function mineValuables()
     local forward = inspectBlock()
     local down = inspectBlock("Down")
 
-    -- mine up
-    for index, value in ipairs(VALUABLE_RESOURCES) do
+    -- mine
+    for _, value in ipairs(VALUABLE_RESOURCES) do
+
         if value == up then
             local index = getItemIndex(up)
             if index ~= -1 then
@@ -162,10 +164,7 @@ function mineValuables()
             end
             turtle.digUp()
         end
-    end
 
-    -- mine forward
-    for index, value in ipairs(VALUABLE_RESOURCES) do
         if value == forward then
             local index = getItemIndex(forward)
             if index ~= -1 then
@@ -173,10 +172,7 @@ function mineValuables()
             end
             turtle.dig()
         end
-    end
 
-    -- mine down
-    for index, value in ipairs(VALUABLE_RESOURCES) do
         if value == down then
             local index = getItemIndex(down)
             if index ~= -1 then
@@ -226,6 +222,11 @@ function websocketStart(turtleID, parentID)
             if data_type == TYPE_EXEC then
                 command = loadstring(data_content)
                 status, return_data = command()
+
+            elseif data_type == TYPE_MINE then
+                mineValuables()
+                status = true
+            end
 
                 -- performs a clone
             elseif data == TYPE_CLONE then
