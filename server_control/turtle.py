@@ -23,10 +23,10 @@ FALSE = "{F}"
 
 # heading numbers for refrence
 """
-north = 0
-east = 1
-south = 2
-west = 3
+north = 0 - negative z
+east = 1 - positive x
+south = 2 - positive z
+west = 3 - negative x
 """
 
 
@@ -117,7 +117,6 @@ class Turtle:
 
         # y offset for strip mining
         self.y_offset = 0
-
         # if this turtle is not recovering from json
         if is_recovering == False:
 
@@ -134,6 +133,10 @@ class Turtle:
         # turtle recovery from json
         else:
             self.recover_from_json(json)
+
+        self.line_stepper = 0
+        self.line = self.line_3d(100, 10, -10)
+
 
     ###########################
     ##### MAIN CODE START #####
@@ -156,7 +159,7 @@ class Turtle:
                 self.idle()
 
             if self.task == "test":
-                self.go_to(100, 10, -10);
+                self.go_to(self.line);
 
             elif self.task == "coaling":
                 if self.mine(
@@ -217,9 +220,10 @@ class Turtle:
         self.turn()
 
     # tells the turtle to move to the given coordinate points
-    def go_to(self, x: int, y: int, z: int):
-        for coordinate in self.line_3d(x, y, z):
-            while not self.step_to(coordinate[0], coordinate[1], coordinate[2]): continue
+    def go_to(self, coordinate: list[list[int]]):
+        if self.step_to(coordinate[self.line_stepper][0], coordinate[self.line_stepper][1], coordinate[self.line_stepper][2]):
+            self.line_stepper += 1
+            print(f"{self.x}, {self.y}, {self.z}")
 
     def tunnel(self, length: int, search: bool=True):
         for _ in range(length):
@@ -234,29 +238,20 @@ class Turtle:
     # calling this will take one step to the specified coordinate point, x takes precedence
     # returns true if turtle is at the given coordinates, false if not
     def step_to(self, x, y, z) -> bool:
-
         # reutrns true if the turtle is at the specified coordinates
         if self.x == x and self.y == y and self.z == z:
             return True
 
-        # checks if the x value of the turtle is correct, and moves accordingly if not
+        turns = 0
+
         if self.x != x:
-            if self.sign(self.x_offset) != self.sign(x):
-                self.turn(turns=2)
-            elif self.abs(self.x - x) == self.abs(self.x + self.x_offset - x):
-                if self.x > x:
-                    self.turn("left")
-                else:
-                    self.turn("right")
-        # once the x value is correct, take steps to correct the z value
-        else:
-            if self.sign(self.z_offset) != self.sign(z):
-                self.turn(turns=2)
-            elif self.abs(self.z - z) == self.abs(self.z + self.z_offset - z):
-                if self.z > z:
-                    self.turn("left")
-                else:
-                    self.turn("right")
+            turns = (3 if self.x > x else 1) - self.heading
+
+        elif self.z != z:
+            turns = (0 if self.z > z else 2) - self.heading
+            
+
+        self.turn("right" if turns > 0 else "left", self.abs(turns))
 
         self.forward(True)
 
@@ -336,6 +331,8 @@ class Turtle:
                 p1 += 2 * dy
                 p2 += 2 * dx
                 points.append((x, y, z))
+
+        points.reverse()
 
         return points
 
