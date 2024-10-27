@@ -5,7 +5,6 @@ This is a websocket controller script for computercraft turtles. Once the first 
 
 ## Usage
 Install all dependencies by running `pip install -r requirements.txt`.
-this is a test
 
 This server can save multiple worlds. You would use this if you are running this on multiple minecraft worlds. You can specify what world should be created or used for the particular instance of the server with the `-w` (`--world`) arguemnt. If your input already exists as a world, it will use the data from that world for turtles to reconnect. If it doesn't exist it will create a new instance.
 
