@@ -226,7 +226,6 @@ function websocketStart(turtleID, parentID)
             elseif data_type == TYPE_MINE then
                 mineValuables()
                 status = true
-            end
 
                 -- performs a clone
             elseif data == TYPE_CLONE then

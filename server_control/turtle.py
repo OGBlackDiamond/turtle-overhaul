@@ -99,7 +99,7 @@ class Turtle:
         self.fuel = 0
 
         # the current task of the turtle
-        self.task = "idle"
+        self.task = "test"
 
         # point where tunnling starts
         self.startx = 0
@@ -154,6 +154,9 @@ class Turtle:
 
             if self.task == "idle":
                 self.idle()
+
+            if self.task == "test":
+                self.go_to(100, 10, -10);
 
             elif self.task == "coaling":
                 if self.mine(
@@ -493,7 +496,7 @@ class Turtle:
         )
 
         # if there the turtle just moved past a space, set the block behind it to air
-        if self.messages[1]["return"]["command"] == "return turtle.forward()":
+        if self.messages[1 if len(self.messages) > 1 else 0]["return"]["command"] == "return turtle.forward()":
             self.master_control_program.set_block(
                 self.x - self.x_offset, self.y, self.z - self.z_offset, "minecraft:air"
             )
