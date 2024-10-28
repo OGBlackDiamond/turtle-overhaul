@@ -77,7 +77,6 @@ class Turtle:
     pyd_pos: int
 
     line_stepper: int
-
     destination: list[tuple[int, int, int]]
 
     def __init__(
@@ -117,6 +116,10 @@ class Turtle:
         # bool if the turtle can start tunneling
         self.is_deep = False
 
+        # global values that handle travel across the world
+        self.line_stepper = 0
+        self.destination = [(0, 0, 0)]
+
         # if this turtle is not recovering from json
         if is_recovering == False:
 
@@ -134,10 +137,6 @@ class Turtle:
         else:
             self.recover_from_json(json)
 
-        self.line_stepper = 0
-        self.destination = [(0, 0, 0)]
-
-
     ###########################
     ##### MAIN CODE START #####
     ###########################
@@ -148,13 +147,12 @@ class Turtle:
         if len(self.queue) > 0:
             # gets the next command to execute from the stack
             command = self.queue.pop(0)
-
             # sends the command and awaits a response
             await self.exec(command)
             await self.recv()
+
         # if the queue is empty, allow new commands to be queued
         else:
-
             match (self.task):
                 case self.Status.IDLE:
                     self.idle()
@@ -327,8 +325,20 @@ class Turtle:
         self.queue_instruction(TYPE_MINE)
 
     # options: "", up, down
+    def directional_command(self, command: str, direction: str = ""):
+        if (direction in ("up", "down", "")): 
+            print("[ERROR] Invalid direction for directional command!")
+            return
+        self.queue_instruction(f"turtle.{command.lower()}{direction.capitalize()}()")
+
     def dig(self, direction: str = ""):
-        self.queue_instruction(f"turtle.dig{direction.capitalize()}()")
+        self.directional_command("dig", direction)
+
+    def drop(self, direction: str = ""):
+        self.directional_command("drop", direction)
+
+    def suck(self, direction: str = ""):
+        self.directional_command("suck", direction)
 
     def check_inv(self, item: str) -> dict:
         return_json= {
@@ -356,14 +366,6 @@ class Turtle:
             self.z_offset = 1
         elif self.heading == 3:
             self.x_offset = -1
-
-    # returns the x offset
-    def getx_offset(self):
-        return self.x_offset
-
-    # return the z offset
-    def getz_offset(self):
-        return self.z_offset
 
     # handles coordinate and heading updates when moving
     def handle_movement(self, command: str, status: bool):
