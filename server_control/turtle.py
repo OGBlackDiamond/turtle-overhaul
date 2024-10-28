@@ -1,3 +1,4 @@
+from enum import IntEnum
 import json
 
 from websockets.sync.server import ServerConnection
@@ -32,6 +33,18 @@ west = 3 - negative x
 
 class Turtle:
 
+    class Heading(IntEnum):
+        NORTH = 0
+        EAST = 1
+        SOUTH = 2
+        WEST = 3
+
+    class Status(IntEnum):
+        IDLE = 0
+        GOTO = 1
+        MANUAL = 2
+        
+
     connected: bool
     websocket: ServerConnection
     master_control_program: 'Master_Control_Program'
@@ -45,7 +58,7 @@ class Turtle:
 
     fuel: int
 
-    task: str
+    task: Status 
 
     startx: int
     startz: int
@@ -54,21 +67,18 @@ class Turtle:
 
     is_deep: bool
 
-    x_offset: int
-    y_offset: int
-
-    z_offset: int
-
     x: int
     y: int
     z: int
 
-    heading: int
+    heading: Heading 
 
     type: str
     pyd_pos: int
 
-    task: str
+    line_stepper: int
+
+    destination: list[tuple[int, int, int]]
 
     def __init__(
         self,
@@ -99,11 +109,7 @@ class Turtle:
         self.fuel = 0
 
         # the current task of the turtle
-        self.task = "test"
-
-        # point where tunnling starts
-        self.startx = 0
-        self.startz = 0
+        self.task = self.Status.IDLE
 
         # fuel value at the start of the mining section
         self.start_fuel = 0
@@ -111,12 +117,6 @@ class Turtle:
         # bool if the turtle can start tunneling
         self.is_deep = False
 
-        # these values will store the x or z offset value for the block in front of the turtle
-        self.x_offset = 0
-        self.z_offset = 0
-
-        # y offset for strip mining
-        self.y_offset = 0
         # if this turtle is not recovering from json
         if is_recovering == False:
 
@@ -135,7 +135,7 @@ class Turtle:
             self.recover_from_json(json)
 
         self.line_stepper = 0
-        self.line = self.line_3d(100, 10, -10)
+        self.destination = [(0, 0, 0)]
 
 
     ###########################
@@ -155,76 +155,30 @@ class Turtle:
         # if the queue is empty, allow new commands to be queued
         else:
 
-            if self.task == "idle":
-                self.idle()
+            match (self.task):
+                case self.Status.IDLE:
+                    self.idle()
+                case self.Status.GOTO:
+                    self.go_to_destination()
+                # this is kinda just so that the mcp can take a pause to queue other commands
+                case self.Status.MANUAL:
+                    pass
 
-            if self.task == "test":
-                self.go_to(self.line);
-
-            elif self.task == "coaling":
-                if self.mine(
-                    yval=56,
-                    yoffset=self.y_offset,
-                    returning=self.fuel < self.start_fuel * (7 / 8),
-                ):
-                    if self.y_offset >= 1:
-                        self.y_offset -= 1
-                    else:
-                        self.y_offset += 2
-                    self.is_deep = False
-
-    # turtle will prioritize mining at the indicated y level with the particular offset
-    def mine(self, yval: int = 0, yoffset: int = 0, returning: bool = False):
-        if self.y < yval + yoffset:
-            self.up(True)
-            self.turn(turns=4)
-
-        elif self.y > yval + yoffset:
-            self.down(True)
-            self.turn(turns=4)
-
-        else:
-            if not self.is_deep:
-                self.startx = self.x
-                self.startz = self.z
-                self.start_fuel = self.fuel
-                self.is_deep = True
-                return False
-
-            if returning:
-                if self.go_to(self.startx, self.y, self.startz):
-                    self.turn(turns=2)
-                    self.up(True)
-                    if yoffset >= 1:
-                        self.turn("left")
-                        self.forward(True)
-                        self.forward(True)
-                        self.turn("right")
-                    else:
-                        self.up(True)
-                        self.turn("left")
-                        self.forward(True)
-                        self.turn("right")
-
-                    return True
-            else:
-                self.forward(True)
-                self.turn()
-                self.turn("left", 2)
-                self.turn()
-
-        return False
+    # this needs to be re-implemented at some point
+    def mine(self):
+        pass
 
     # basic idle function, turtle will simply spin in place
     def idle(self):
         self.turn()
 
-    # tells the turtle to move to the given coordinate points
-    def go_to(self, coordinate: list[list[int]]):
-        if self.step_to(coordinate[self.line_stepper][0], coordinate[self.line_stepper][1], coordinate[self.line_stepper][2]):
+    # tells the turtle to move to the current destination value
+    def go_to_destination(self):
+        if self.step_to(self.destination[self.line_stepper][0], self.destination[self.line_stepper][1], self.destination[self.line_stepper][2]):
             self.line_stepper += 1
             print(f"{self.x}, {self.y}, {self.z}")
 
+    # turtle tunnels for a certain length, optionally mining for goodies
     def tunnel(self, length: int, search: bool=True):
         for _ in range(length):
             if search : self.mine_valuables()
@@ -436,12 +390,12 @@ class Turtle:
 
         # handles rotations
         elif command == "turtle.turnRight()" and status:
-            self.heading += 1
+            self.heading = self.Heading(self.heading + 1)
         elif command == "turtle.turnLeft()" and status:
-            self.heading -= 1
+            self.heading = self.Heading(self.heading - 1)
 
         # handles rotation overflow
-        self.heading %= 4
+        self.heading = self.Heading(self.heading % 4)
 
     # handles message sending
     async def exec(self, message: str):
@@ -560,7 +514,7 @@ class Turtle:
         self.x = x
         self.y = y
         self.z = z
-        self.heading = 0
+        self.heading = self.Heading(0)
         self.type = "M"
         self.pyd_pos = 0
 
