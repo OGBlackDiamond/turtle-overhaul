@@ -2,14 +2,13 @@ from websockets.sync.server import ServerConnection
 
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from server_control.turtle import Turtle
+if TYPE_CHECKING: from server_control.turtle import Turtle
 
 # this will handle all logic in the autonomous funciton of the turtle swarm
 # essentially, turtle orchestration
 class Master_Control_Program:
 
-    turtles: list['Turtle']
+    turtles: list[Turtle]
 
     # only used if the world hasn't been generated yet
     starting_coords: list[int]
@@ -32,6 +31,12 @@ class Master_Control_Program:
     def main(self):
         for turtle in self.turtles:
             self.gen_world(turtle)
+
+
+    def decide_task(self, turtle: Turtle):
+        if (turtle.fuel < 200):
+            turtle.set_destination(turtle.x, 56, turtle.z)
+            turtle.task = Turtle.Status.GOTO
 
 
     def controller(self):
@@ -72,9 +77,9 @@ class Master_Control_Program:
         )
 
         self.world_data[
-            f"{turtle.x + turtle.getx_offset()},{turtle.y},{turtle.z + turtle.getz_offset()}"
+            f"{turtle.x + turtle.x_offset},{turtle.y},{turtle.z + turtle.z_offset}"
         ] = self.world_data.get(
-            f"{turtle.x + turtle.getx_offset()},{turtle.y},{turtle.z + turtle.getz_offset()}",
+            f"{turtle.x + turtle.x_offset},{turtle.y},{turtle.z + turtle.z_offset}",
             "unknown",
         )
 
@@ -142,7 +147,6 @@ class Master_Control_Program:
                     return [self.starting_coords[arr_index] - 5, self.starting_coords[arr_index] + 5]
 
                             
-
             # initialize the bounding box
             self.world["bounding_box"] = {
                 "infinite_dimension": self.box_direction,

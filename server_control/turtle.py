@@ -5,8 +5,7 @@ from websockets.sync.server import ServerConnection
 
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from server_control.mcp import Master_Control_Program
+if TYPE_CHECKING: from server_control.mcp import Master_Control_Program
 
 # sets the message that will indicate a disconnection
 DISCONNECT_MESSAGE = "END-OF-LINE"
@@ -47,7 +46,7 @@ class Turtle:
 
     connected: bool
     websocket: ServerConnection
-    master_control_program: 'Master_Control_Program'
+    master_control_program: Master_Control_Program
     parent: 'Turtle'
 
     gameID: int
@@ -82,7 +81,7 @@ class Turtle:
     def __init__(
         self,
         websocket: ServerConnection,
-        master_control_program: 'Master_Control_Program',
+        master_control_program: Master_Control_Program,
         parent: 'Turtle',
         gameID: int,
         parentID: int = -1,
@@ -160,24 +159,26 @@ class Turtle:
                     self.go_to_destination()
                 # this is kinda just so that the mcp can take a pause to queue other commands
                 case self.Status.MANUAL:
-                    pass
-
-    # this needs to be re-implemented at some point
-    def mine(self):
-        pass
+                    pass # for now
 
     # basic idle function, turtle will simply spin in place
-    def idle(self):
+    def idle(self) -> None:
         self.turn()
 
     # tells the turtle to move to the current destination value
-    def go_to_destination(self):
-        if self.step_to(self.destination[self.line_stepper][0], self.destination[self.line_stepper][1], self.destination[self.line_stepper][2]):
-            self.line_stepper += 1
-            print(f"{self.x}, {self.y}, {self.z}")
+    def go_to_destination(self) -> bool:
+        if self.line_stepper == len(self.destination):
+            self.line_stepper = 0
+            return True
+        if self.step_to(
+                self.destination[self.line_stepper][0],
+                self.destination[self.line_stepper][1], 
+                self.destination[self.line_stepper][2]
+            ): self.line_stepper += 1
+        return False
 
     # turtle tunnels for a certain length, optionally mining for goodies
-    def tunnel(self, length: int, search: bool=True):
+    def tunnel(self, length: int, search: bool=True) -> None:
         for _ in range(length):
             if search : self.mine_valuables()
             self.forward()
@@ -186,10 +187,12 @@ class Turtle:
     ############# HELPER CODE #############
     #######################################
 
+    def set_destination(self, x: int, y: int, z: int) -> None:
+        self.destination = self.line_3d(x, y, z)
 
     # calling this will take one step to the specified coordinate point, x takes precedence
     # returns true if turtle is at the given coordinates, false if not
-    def step_to(self, x, y, z) -> bool:
+    def step_to(self, x: int, y: int, z: int) -> bool:
         # reutrns true if the turtle is at the specified coordinates
         if self.x == x and self.y == y and self.z == z:
             return True
@@ -217,7 +220,7 @@ class Turtle:
 
 
     # generates a list of coordinate points from the turtle's position to the target
-    def line_3d(self, x, y, z):
+    def line_3d(self, x: int, y: int, z: int):
         points = []
         points.append((x, y, z))
         dx = abs(self.x - x)
@@ -290,13 +293,13 @@ class Turtle:
 
     # series of functions that give the turtle direct instructions
     # this is simply to make my life programming easier
+
     def queue_instruction(self, instructions: str):
         self.queue.append(instructions)
 
     # moves the turtle forward, optionally digs
     def forward(self, dig: bool = False):
-        if dig:
-            self.dig()
+        if dig: self.dig()
         self.queue_instruction("turtle.forward()")
 
     # moves the turtle backwards
@@ -310,14 +313,12 @@ class Turtle:
 
     # moves the turtle up, optionally digs
     def up(self, dig: bool = False):
-        if dig:
-            self.dig("up")
+        if dig: self.dig("up")
         self.queue_instruction("turtle.up()")
 
     # moves the turtle down, optionally digs
     def down(self, dig: bool = False):
-        if dig:
-            self.dig("down")
+        if dig: self.dig("down")
         self.queue_instruction("turtle.down()")
 
     # tells the turtle to check and mine if valuables are near
@@ -331,13 +332,13 @@ class Turtle:
             return
         self.queue_instruction(f"turtle.{command.lower()}{direction.capitalize()}()")
 
-    def dig(self, direction: str = ""):
+    def dig(self, direction: str = "") -> None:
         self.directional_command("dig", direction)
 
-    def drop(self, direction: str = ""):
+    def drop(self, direction: str = "") -> None:
         self.directional_command("drop", direction)
 
-    def suck(self, direction: str = ""):
+    def suck(self, direction: str = "") -> None:
         self.directional_command("suck", direction)
 
     def check_inv(self, item: str) -> dict:
@@ -350,25 +351,27 @@ class Turtle:
             if item == slot["name"]:
                 return_json["count"] = slot["count"]
                 return_json["index"] = index 
+                break
 
         return return_json
 
     # handles the x and z offset for in front of the turtle
-    def handle_offset(self):
+    def handle_offset(self) -> None:
         self.x_offset = 0
         self.z_offset = 0
 
-        if self.heading == 0:
-            self.z_offset = -1
-        elif self.heading == 1:
-            self.x_offset = 1
-        elif self.heading == 2:
-            self.z_offset = 1
-        elif self.heading == 3:
-            self.x_offset = -1
+        match (self.heading):
+            case self.Heading.NORTH:
+                self.z_offset = -1
+            case self.Heading.EAST:
+                self.x_offset = 1
+            case self.Heading.SOUTH:
+                self.z_offset = 1
+            case self.Heading.WEST:
+                self.x_offset = -1
 
     # handles coordinate and heading updates when moving
-    def handle_movement(self, command: str, status: bool):
+    def handle_movement(self, command: str, status: bool) -> None:
 
         command = command[7:]
 

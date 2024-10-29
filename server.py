@@ -45,7 +45,7 @@ class Server:
             await websocket.send("return print('Connection Established')")  # type: ignore
 
             # waits for the turtle to send up it's and it's parent's ID
-            turtle_id = await websocket.recv()  # type: ignore
+            turtle_id = int(await websocket.recv())  # type: ignore
             parent_id = await websocket.recv()  # type: ignore
             turtle: Turtle = None  # type: ignore
             parent: Turtle = None  # type: ignore
