@@ -8,7 +8,7 @@ if TYPE_CHECKING: from server_control.turtle import Turtle
 # essentially, turtle orchestration
 class Master_Control_Program:
 
-    turtles: list[Turtle]
+    turtles: list['Turtle']
 
     # only used if the world hasn't been generated yet
     starting_coords: list[int]
@@ -33,7 +33,7 @@ class Master_Control_Program:
             self.gen_world(turtle)
 
 
-    def decide_task(self, turtle: Turtle):
+    def decide_task(self, turtle: 'Turtle'):
         if (turtle.fuel < 200):
             turtle.set_destination(turtle.x, 56, turtle.z)
             turtle.task = Turtle.Status.GOTO
@@ -106,7 +106,7 @@ class Master_Control_Program:
         return None  # type: ignore
 
     # sets the websocket class to the turtle at the given id
-    def set_websocket(self, websocket: ServerConnection, id: int) -> 'Turtle':
+    def set_websocket(self, websocket: ServerConnection, id: int) -> 'Turtle | None':
         for i in range(0, len(self.turtles)):
             if self.turtles[i].gameID == id:
                 self.turtles[i].websocket = websocket

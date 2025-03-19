@@ -21,7 +21,7 @@ class Server:
         self.mcp.set_world(self.json_manager.get_world())
 
         # identifies the hostname
-        self.HOST = "rx-78-2"
+        self.HOST = "localhost"
         # identifies the port
         self.PORT = 3000
 
@@ -47,8 +47,8 @@ class Server:
             # waits for the turtle to send up it's and it's parent's ID
             turtle_id = int(await websocket.recv())  # type: ignore
             parent_id = await websocket.recv()  # type: ignore
-            turtle: Turtle = None  # type: ignore
-            parent: Turtle = None  # type: ignore
+            turtle: Turtle | None = None 
+            parent: Turtle | None = None 
 
             # a parentID of -1 indicates that this turtle needs to reconnect, and a new turtle class should not be created, except from json
             if parent_id == "-1":
@@ -56,7 +56,7 @@ class Server:
                 ### HANDLES TURTLE RECONNECTION ###
 
                 # attempt to recconnect the turtle to it's websocket if it exists
-                turtle = self.mcp.set_websocket(websocket, turtle_id)  # type: ignore
+                turtle = self.mcp.set_websocket(websocket, turtle_id)
 
                 # if a turtle object doesn't exist, recover it from json
                 if turtle == None:

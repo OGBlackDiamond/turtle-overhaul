@@ -302,6 +302,11 @@ if turtle_name == nil then
     parentID = peripheral.call("back", "getID")
     -- copies data to turtle
     shell.run("cp", "disk/startup.lua", "/startup.lua")
+
+    if parentID == nil then
+        print("Please place a chest in my inventory.")
+        while getItemIndex("minecraft:chest") == 1 do end
+    end
 else
     -- if the name is set, we know it has connected, and it will be reconnected
     parentID = -1

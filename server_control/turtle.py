@@ -46,7 +46,7 @@ class Turtle:
 
     connected: bool
     websocket: ServerConnection
-    master_control_program: Master_Control_Program
+    master_control_program: 'Master_Control_Program'
     parent: 'Turtle'
 
     gameID: int
@@ -66,6 +66,9 @@ class Turtle:
 
     is_deep: bool
 
+    x_offset: int
+    z_offset: int
+
     x: int
     y: int
     z: int
@@ -81,7 +84,7 @@ class Turtle:
     def __init__(
         self,
         websocket: ServerConnection,
-        master_control_program: Master_Control_Program,
+        master_control_program: 'Master_Control_Program',
         parent: 'Turtle',
         gameID: int,
         parentID: int = -1,
@@ -114,6 +117,11 @@ class Turtle:
 
         # bool if the turtle can start tunneling
         self.is_deep = False
+
+
+        # these values will store the x or z offset value for the block in front of the turtle
+        self.x_offset = 0
+        self.z_offset = 0
 
         # global values that handle travel across the world
         self.line_stepper = 0
@@ -341,7 +349,10 @@ class Turtle:
     def suck(self, direction: str = "") -> None:
         self.directional_command("suck", direction)
 
-    def check_inv(self, item: str) -> dict:
+    def select(self, slot: int = 0) -> None:
+        self.queue_instruction(f"turtle.select({slot})")
+
+    def check_inv(self, item: str) -> dict[str, int]:
         return_json= {
             "count": -1,
             "index": -1
@@ -377,6 +388,8 @@ class Turtle:
 
         self.handle_offset()
 
+        newRotation: int = self.heading
+
         # handles turtle forward movement
         if command == "turtle.forward()" and status:
             self.x += self.x_offset
@@ -395,12 +408,12 @@ class Turtle:
 
         # handles rotations
         elif command == "turtle.turnRight()" and status:
-            self.heading = self.Heading(self.heading + 1)
+            newRotation += 1
         elif command == "turtle.turnLeft()" and status:
-            self.heading = self.Heading(self.heading - 1)
+            newRotation -= 1
 
         # handles rotation overflow
-        self.heading = self.Heading(self.heading % 4)
+        self.heading = self.Heading(newRotation % 4)
 
     # handles message sending
     async def exec(self, message: str):
@@ -522,6 +535,8 @@ class Turtle:
         self.heading = self.Heading(0)
         self.type = "M"
         self.pyd_pos = 0
+
+        
 
     def parent_exists(self):
         self.heading = self.parent.heading
