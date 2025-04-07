@@ -48,7 +48,7 @@ class Master_Control_Program:
 
 
     def decide_instructions(self, turtle: 'Turtle'):
-        if not turtle.task == Types.Task_Status.IDLE: return
+        # if turtle.task == Types.Task_Status.IDLE: return
 
         match (turtle.task):
 
@@ -58,11 +58,16 @@ class Master_Control_Program:
             case(Types.Task_Status.COAL):
 
                 match (turtle.prev_instruction):
+
                     case(Types.Instruction_Status.GOTO):
                         self.tunnel(turtle)
 
                     case(Types.Instruction_Status.TUNNLING):
-                        pass
+                        pass # TODO: choose how to follow the mining algorithm
+
+                        turtle.set_destination(turtle.x, turtle.y, turtle.z)
+                        turtle.set_instruction(Types.Instruction_Status.GOTO)
+
 
                 
 
