@@ -1,7 +1,8 @@
 from websockets.sync.server import ServerConnection
 
-from typing import TYPE_CHECKING
+import server_control.types as Types
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING: from server_control.turtle import Turtle
 
 # this will handle all logic in the autonomous funciton of the turtle swarm
@@ -31,16 +32,71 @@ class Master_Control_Program:
     def main(self):
         for turtle in self.turtles:
             self.gen_world(turtle)
+            self.decide_task(turtle)
+            self.decide_instructions(turtle)
 
 
     def decide_task(self, turtle: 'Turtle'):
-        if (turtle.fuel < 200):
-            turtle.set_destination(turtle.x, 56, turtle.z)
-            turtle.task = Turtle.Status.GOTO
+        if not turtle.startup_chores_complete: return
+        if not turtle.task == Types.Task_Status.IDLE: return
 
+        if (turtle.fuel < 500):
+            if (turtle.task == Types.Task_Status.COAL): return
+            turtle.task = Types.Task_Status.COAL
+            turtle.set_destination(turtle.x, 56, turtle.z)
+            turtle.set_instruction(Types.Instruction_Status.GOTO)
+
+
+    def decide_instructions(self, turtle: 'Turtle'):
+        if not turtle.task == Types.Task_Status.IDLE: return
+
+        match (turtle.task):
+
+            case(Types.Task_Status.IDLE):
+                turtle.set_instruction(Types.Instruction_Status.IDLE)
+                
+            case(Types.Task_Status.COAL):
+
+                match (turtle.prev_instruction):
+                    case(Types.Instruction_Status.GOTO):
+                        self.tunnel(turtle)
+
+                    case(Types.Instruction_Status.TUNNLING):
+                        pass
+
+                
 
     def controller(self):
         pass
+
+
+    def tunnel(self, turtle: 'Turtle'):
+
+        turtle_position = turtle.x if (self.world["bounding_box"]["infinite_dimension"] == "z") else turtle.z
+        left_wall: bool = abs(turtle_position - self.world["bounding_box"]["box_range"][0]) < abs(turtle_position - self.world["bounding_box"]["box_range"][1])
+
+        heading: int = 0 if turtle.z == turtle_position else 1
+        if not left_wall: heading += 2
+
+        turtle.turn_to(heading)
+
+        dist = turtle.fuel - len(turtle.line_3d(
+            self.world["deposit_block"][0],
+            self.world["deposit_block"][1],
+            self.world["deposit_block"][2]
+        )) - 10
+
+        turtle.tunnel(int(dist / 8))
+
+        turtle.set_instruction(Types.Instruction_Status.TUNNLING)
+
+        self.world["bounding_box"]["left" if left_wall else "right"][f"{turtle_position},{turtle.y}"] = int(dist/8)
+
+
+
+    def check_bounding_wall(self, is_left_wall: bool, x: int, y: int) -> int:
+        return self.world["bounding_box"]["left" if is_left_wall else "right"].get(f"{x},{y}", -1)
+
 
 
     #######################################
@@ -76,11 +132,8 @@ class Master_Control_Program:
             f"{turtle.x},{turtle.y - 1},{turtle.z}", "unknown"
         )
 
-        self.world_data[
-            f"{turtle.x + turtle.x_offset},{turtle.y},{turtle.z + turtle.z_offset}"
-        ] = self.world_data.get(
-            f"{turtle.x + turtle.x_offset},{turtle.y},{turtle.z + turtle.z_offset}",
-            "unknown",
+        self.world_data[f"{turtle.x + turtle.x_offset},{turtle.y},{turtle.z + turtle.z_offset}"] = self.world_data.get(
+            f"{turtle.x + turtle.x_offset},{turtle.y},{turtle.z + turtle.z_offset}", "unknown"
         )
 
     # adds a turtle to the array
@@ -150,7 +203,11 @@ class Master_Control_Program:
             # initialize the bounding box
             self.world["bounding_box"] = {
                 "infinite_dimension": self.box_direction,
-                "box_range": find_box_range()
+                "box_range": find_box_range(),
+                "tunnel_sites": {
+                    "left": {},
+                    "right": {}
+                }
             }
 
             # the block that resources will be deposited in

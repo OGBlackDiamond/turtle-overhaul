@@ -207,7 +207,7 @@ function websocketStart(turtleID, parentID)
 
     -- MAIN CODE
     while true do
-        -- gets a message from the server and setds a defualt response value
+        -- gets a message from the server and sets a defualt response value
         local data = ws.receive(5)
 
         -- won't do anything if the recv times out
@@ -305,7 +305,9 @@ if turtle_name == nil then
 
     if parentID == nil then
         print("Please place a chest in my inventory.")
-        while getItemIndex("minecraft:chest") == 1 do end
+        while getItemIndex("minecraft:chest") == -1 do 
+            sleep(1)
+        end
     end
 else
     -- if the name is set, we know it has connected, and it will be reconnected

@@ -1,10 +1,10 @@
-from enum import IntEnum
 import json
 
 from websockets.sync.server import ServerConnection
 
-from typing import TYPE_CHECKING
+import server_control.types as Types
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING: from server_control.mcp import Master_Control_Program
 
 # sets the message that will indicate a disconnection
@@ -32,18 +32,6 @@ west = 3 - negative x
 
 class Turtle:
 
-    class Heading(IntEnum):
-        NORTH = 0
-        EAST = 1
-        SOUTH = 2
-        WEST = 3
-
-    class Status(IntEnum):
-        IDLE = 0
-        GOTO = 1
-        MANUAL = 2
-        
-
     connected: bool
     websocket: ServerConnection
     master_control_program: 'Master_Control_Program'
@@ -57,7 +45,8 @@ class Turtle:
 
     fuel: int
 
-    task: Status 
+    instruction: Types.Instruction_Status
+    task: Types.Task_Status
 
     startx: int
     startz: int
@@ -73,7 +62,9 @@ class Turtle:
     y: int
     z: int
 
-    heading: Heading 
+    heading: Types.Heading 
+
+    startup_chores_complete: bool
 
     type: str
     pyd_pos: int
@@ -109,8 +100,11 @@ class Turtle:
 
         self.fuel = 0
 
-        # the current task of the turtle
-        self.task = self.Status.IDLE
+        # current "nitpick" of tasks
+        self.instruction = Types.Instruction_Status.STARTUP_CHORES
+        self.prev_instruction = Types.Instruction_Status.IDLE
+        # current "bigger picure" of mcp
+        self.task = Types.Task_Status.IDLE
 
         # fuel value at the start of the mining section
         self.start_fuel = 0
@@ -126,6 +120,8 @@ class Turtle:
         # global values that handle travel across the world
         self.line_stepper = 0
         self.destination = [(0, 0, 0)]
+
+        self.startup_chores_complete = False
 
         # if this turtle is not recovering from json
         if is_recovering == False:
@@ -160,14 +156,31 @@ class Turtle:
 
         # if the queue is empty, allow new commands to be queued
         else:
-            match (self.task):
-                case self.Status.IDLE:
+            match (self.instruction):
+                case Types.Instruction_Status.IDLE:
                     self.idle()
-                case self.Status.GOTO:
+                case Types.Instruction_Status.GOTO:
                     self.go_to_destination()
                 # this is kinda just so that the mcp can take a pause to queue other commands
-                case self.Status.MANUAL:
+                case Types.Instruction_Status.MANUAL:
                     pass # for now
+                case Types.Instruction_Status.STARTUP_CHORES:
+                    if self.type == "M":
+
+                        self.down(True)
+
+                        self.select(
+                            self.check_inv("minecraft:chest")["index"]
+                        )
+
+                        self.place("up")
+                    
+                    self.startup_chores_complete = True
+                    self.instruction = Types.Instruction_Status.IDLE;
+
+                case Types.Instruction_Status.TUNNLING:
+                    self.set_instruction(Types.Instruction_Status.IDLE)
+                    
 
     # basic idle function, turtle will simply spin in place
     def idle(self) -> None:
@@ -177,6 +190,7 @@ class Turtle:
     def go_to_destination(self) -> bool:
         if self.line_stepper == len(self.destination):
             self.line_stepper = 0
+            self.set_instruction(Types.Instruction_Status.IDLE)
             return True
         if self.step_to(
                 self.destination[self.line_stepper][0],
@@ -189,14 +203,28 @@ class Turtle:
     def tunnel(self, length: int, search: bool=True) -> None:
         for _ in range(length):
             if search : self.mine_valuables()
-            self.forward()
+            self.forward(True)
+            
+        self.turn("left", 2)
+
+        for _ in range(length + 1):
+            self.forward(False)
 
     #######################################
     ############# HELPER CODE #############
     #######################################
 
+    def clear_queue(self) -> None:
+        self.queue.clear()
+
     def set_destination(self, x: int, y: int, z: int) -> None:
         self.destination = self.line_3d(x, y, z)
+
+    # sets a new instruction, returns the previous one
+    def set_instruction(self, instruction: Types.Instruction_Status) -> Types.Instruction_Status:
+        self.prev_instruction = self.instruction
+        self.instruction = instruction
+        return self.prev_instruction
 
     # calling this will take one step to the specified coordinate point, x takes precedence
     # returns true if turtle is at the given coordinates, false if not
@@ -216,7 +244,8 @@ class Turtle:
 
         self.turn("right" if turns > 0 else "left", self.abs(turns))
 
-        self.forward(True)
+
+        if (turns != 0): self.forward(True)
 
         # moves the turtle to correct the y value
         if self.y > y:
@@ -226,6 +255,11 @@ class Turtle:
 
         return False
 
+    def turn_to(self, heading: int) -> None:
+        self.turn(
+            "right" if self.sign(self.heading - heading) > 0 else "left",
+            abs(self.heading - heading)
+        )
 
     # generates a list of coordinate points from the turtle's position to the target
     def line_3d(self, x: int, y: int, z: int):
@@ -335,13 +369,16 @@ class Turtle:
 
     # options: "", up, down
     def directional_command(self, command: str, direction: str = ""):
-        if (direction in ("up", "down", "")): 
+        if not (direction in ("up", "down", "")): 
             print("[ERROR] Invalid direction for directional command!")
             return
         self.queue_instruction(f"turtle.{command.lower()}{direction.capitalize()}()")
 
     def dig(self, direction: str = "") -> None:
         self.directional_command("dig", direction)
+
+    def place(self, direection: str = "") -> None:
+        self.directional_command("place", direection)
 
     def drop(self, direction: str = "") -> None:
         self.directional_command("drop", direction)
@@ -350,7 +387,7 @@ class Turtle:
         self.directional_command("suck", direction)
 
     def select(self, slot: int = 0) -> None:
-        self.queue_instruction(f"turtle.select({slot})")
+        self.queue_instruction(f"turtle.select({slot + 1})")
 
     def check_inv(self, item: str) -> dict[str, int]:
         return_json= {
@@ -361,7 +398,7 @@ class Turtle:
         for index, slot in enumerate(self.messages[0]["inventory"].values()):
             if item == slot["name"]:
                 return_json["count"] = slot["count"]
-                return_json["index"] = index 
+                return_json["index"] = index
                 break
 
         return return_json
@@ -372,13 +409,13 @@ class Turtle:
         self.z_offset = 0
 
         match (self.heading):
-            case self.Heading.NORTH:
+            case Types.Heading.NORTH:
                 self.z_offset = -1
-            case self.Heading.EAST:
+            case Types.Heading.EAST:
                 self.x_offset = 1
-            case self.Heading.SOUTH:
+            case Types.Heading.SOUTH:
                 self.z_offset = 1
-            case self.Heading.WEST:
+            case Types.Heading.WEST:
                 self.x_offset = -1
 
     # handles coordinate and heading updates when moving
@@ -413,7 +450,7 @@ class Turtle:
             newRotation -= 1
 
         # handles rotation overflow
-        self.heading = self.Heading(newRotation % 4)
+        self.heading = Types.Heading(newRotation % 4)
 
     # handles message sending
     async def exec(self, message: str):
@@ -532,11 +569,12 @@ class Turtle:
         self.x = x
         self.y = y
         self.z = z
-        self.heading = self.Heading(0)
+        self.heading = Types.Heading(0)
         self.type = "M"
         self.pyd_pos = 0
 
-        
+        self.turn()
+
 
     def parent_exists(self):
         self.heading = self.parent.heading
