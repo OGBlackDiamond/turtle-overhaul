@@ -1,4 +1,5 @@
 from websockets.sync.server import ServerConnection
+import random
 
 import server_control.types as Types
 
@@ -66,15 +67,32 @@ class Master_Control_Program:
                         pass # TODO: choose how to follow the mining algorithm
 
                         # finds a valid tunnling location
-                        step = 0
-                        while (self.check_bounding_wall(
-                            True,
-                            (turtle.x if True else turtle.z) + (2 * step if step % 2 == 0 else 1 * step),
-                            turtle.y - (2 * step if step % 2 == 0 else - 1 * step),
-                            )) == -1: 
-                            step += 1
+                        left_wall: bool = self.check_close_wall_left(turtle)
+                        z_wall: bool = self.check_inf_dimension_z()
 
-                        turtle.set_destination(turtle.x, turtle.y, turtle.z)
+                        x_steps: int = 0
+                        y_steps: int = 0
+
+                        while (self.check_bounding_wall(
+                                left_wall,
+                                (turtle.z if z_wall else turtle.x) + x_steps,
+                                turtle.y + y_steps)
+                            ) == -1: 
+
+                            
+                            if (random.randint(0, 1)):
+                                x_steps += -2
+                                y_steps += 1
+                            else:
+                                x_steps += 1
+                                y_steps += 2
+
+
+                        turtle.set_destination(
+                            turtle.x + (0 if z_wall else x_steps),
+                            turtle.y + y_steps, 
+                            turtle.z + (x_steps if z_wall else 0)
+                        )
                         turtle.set_instruction(Types.Instruction_Status.GOTO)
 
 
@@ -87,7 +105,7 @@ class Master_Control_Program:
     def tunnel(self, turtle: 'Turtle'):
 
         turtle_position = turtle.x if (self.world["bounding_box"]["infinite_dimension"] == "z") else turtle.z
-        left_wall: bool = abs(turtle_position - self.world["bounding_box"]["box_range"][0]) < abs(turtle_position - self.world["bounding_box"]["box_range"][1])
+        left_wall: bool = self.check_close_wall_left(turtle)
 
         heading: int = 0 if turtle.z == turtle_position else 1
         if not left_wall: heading += 2
@@ -107,9 +125,15 @@ class Master_Control_Program:
         self.world["bounding_box"]["left" if left_wall else "right"][f"{turtle_position},{turtle.y}"] = int(dist/8)
 
 
-
     def check_bounding_wall(self, is_left_wall: bool, x: int, y: int) -> int:
         return self.world["bounding_box"]["left" if is_left_wall else "right"].get(f"{x},{y}", -1)
+
+    def check_inf_dimension_z(self) -> bool:
+        return self.world["bounding_box"]["infinite_dimension"] == "z"
+
+    def check_close_wall_left(self, turtle: 'Turtle') -> bool:
+        turtle_position = turtle.x if (self.world["bounding_box"]["infinite_dimension"] == "z") else turtle.z
+        return abs(turtle_position - self.world["bounding_box"]["box_range"][0]) < abs(turtle_position - self.world["bounding_box"]["box_range"][1])
 
 
 
