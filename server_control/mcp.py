@@ -48,7 +48,7 @@ class Master_Control_Program:
 
 
     def decide_instructions(self, turtle: 'Turtle'):
-        # if turtle.task == Types.Task_Status.IDLE: return
+        if turtle.instruction != Types.Instruction_Status.IDLE: return
 
         match (turtle.task):
 
@@ -64,6 +64,15 @@ class Master_Control_Program:
 
                     case(Types.Instruction_Status.TUNNLING):
                         pass # TODO: choose how to follow the mining algorithm
+
+                        # finds a valid tunnling location
+                        step = 0
+                        while (self.check_bounding_wall(
+                            True,
+                            (turtle.x if True else turtle.z) + (2 * step if step % 2 == 0 else 1 * step),
+                            turtle.y - (2 * step if step % 2 == 0 else - 1 * step),
+                            )) == -1: 
+                            step += 1
 
                         turtle.set_destination(turtle.x, turtle.y, turtle.z)
                         turtle.set_instruction(Types.Instruction_Status.GOTO)
