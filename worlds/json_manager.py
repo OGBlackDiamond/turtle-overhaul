@@ -8,6 +8,7 @@ from server_control.turtle import Turtle
 class Json_Manager:
 
     directory: str
+    config_file: str
     world_file: str
     turtle_file: str
 
@@ -15,6 +16,9 @@ class Json_Manager:
     def __init__(self, world="world"):
 
         self.select_world(world)
+
+        self.config_file = os.path.join(os.path.join(os.path.dirname(__file__), os.pardir) , "config.json")
+        self.get_config()
 
     # loads the directory and files of the selected world
     def select_world(self, world: str):
@@ -24,6 +28,7 @@ class Json_Manager:
         self.world_file = os.path.join(self.directory, "world.json")
 
         self.turtle_file = os.path.join(self.directory, "turtle_data.json")
+
 
         if not os.path.exists(self.directory):
             os.mkdir(self.directory)
@@ -38,6 +43,11 @@ class Json_Manager:
     def get_world(self) -> dict:
         with open(self.world_file, "r") as file:
             return json.loads(file.read())
+
+    def get_config(self) -> dict:
+        with open(self.config_file, "r") as f:
+            config = json.loads(f.read())
+            return config 
 
     # writes a given dictionary to the world file
     def write_to_world(self, world: dict):

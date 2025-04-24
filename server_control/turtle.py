@@ -1,4 +1,5 @@
 import json
+import math
 
 from websockets.sync.server import ServerConnection
 
@@ -389,6 +390,21 @@ class Turtle:
     def select(self, slot: int = 0) -> None:
         self.queue_instruction(f"turtle.select({slot + 1})")
 
+    def refuel(self, ammount: int = 100) -> int:
+        fuel = self.check_inv("minecraft:coal")
+
+        fuel_used = 0
+
+        if (fuel["count"] * 80 > ammount):
+
+            fuel_used += math.ceil(ammount / 80)
+
+            self.select(fuel["index"])
+            self.queue_instruction(f"refuel {fuel_used}")
+
+        return fuel_used * 80
+
+
     def check_inv(self, item: str) -> dict[str, int]:
         return_json= {
             "count": -1,
@@ -531,9 +547,6 @@ class Turtle:
     # returns the length of the queue
     def get_queue_length(self):
         return len(self.queue)
-
-    def checkFuel(self, used: int) -> bool:
-        return self.fuel >= used
 
     # return the absolute value of num
     def abs(self, num: int):

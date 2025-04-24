@@ -19,6 +19,9 @@ class Master_Control_Program:
     world: dict
     world_data: dict
 
+    ore_levels: dict
+    y_band: int
+
     # initializes with the origional coordinates that the turtle will spawn at
     def __init__(self, starting_coords: list, box_direction: str):
         self.turtles = []
@@ -41,11 +44,22 @@ class Master_Control_Program:
         if not turtle.startup_chores_complete: return
         if not turtle.task == Types.Task_Status.IDLE: return
 
+        # if the turtle's fuel is getting low, start mining for more
+        # this takes priority because a turtle that can't move is useless
         if (turtle.fuel < 500):
-            if (turtle.task == Types.Task_Status.COAL): return
-            turtle.task = Types.Task_Status.COAL
-            turtle.set_destination(turtle.x, 56, turtle.z)
+            if (self.check_mine_band(turtle, "coal")): return
+            turtle.task = Types.Task_Status.MINE
+            turtle.set_destination(turtle.x, self.ore_levels["coal"], turtle.z)
             turtle.set_instruction(Types.Instruction_Status.GOTO)
+
+        else:
+            if (turtle.check_inv("minecraft:diamond")["count"] < 20):
+                if (self.check_mine_band(turtle, "diamond")): return
+                turtle.task = Types.Task_Status.MINE
+                turtle.set_destination(turtle.x, self.ore_levels["diamond"], turtle.z)
+                turtle.set_instruction(Types.Instruction_Status.GOTO)
+
+
 
 
     def decide_instructions(self, turtle: 'Turtle'):
@@ -56,7 +70,7 @@ class Master_Control_Program:
             case(Types.Task_Status.IDLE):
                 turtle.set_instruction(Types.Instruction_Status.IDLE)
                 
-            case(Types.Task_Status.COAL):
+            case(Types.Task_Status.MINE):
 
                 match (turtle.prev_instruction):
 
@@ -64,7 +78,7 @@ class Master_Control_Program:
                         self.tunnel(turtle)
 
                     case(Types.Instruction_Status.TUNNLING):
-                        pass # TODO: choose how to follow the mining algorithm
+                        # TODO: choose how to follow the mining algorithm
 
                         # finds a valid tunnling location
                         left_wall: bool = self.check_close_wall_left(turtle)
@@ -134,6 +148,9 @@ class Master_Control_Program:
     def check_close_wall_left(self, turtle: 'Turtle') -> bool:
         turtle_position = turtle.x if (self.world["bounding_box"]["infinite_dimension"] == "z") else turtle.z
         return abs(turtle_position - self.world["bounding_box"]["box_range"][0]) < abs(turtle_position - self.world["bounding_box"]["box_range"][1])
+
+    def check_mine_band(self, turtle: 'Turtle', ore:str) -> bool:
+        return abs(turtle.destination[-1][1] - self.ore_levels[ore]) < self.y_band 
 
 
 
@@ -259,5 +276,10 @@ class Master_Control_Program:
         self.world_data = self.world["world_data"]
 
 
+    def set_config(self, config: dict):
+
+        self.ore_levels = config["ore-y-levels"]
+
+        self.y_band = config["acceptable-drift"]
 
 

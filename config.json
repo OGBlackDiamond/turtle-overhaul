@@ -1,0 +1,13 @@
+{
+    "ore-y-levels": {
+        "coal": 45,
+        "copper": 43,
+        "iron": 14,
+        "lapis": -2,
+        "gold": -18,
+        "redstone": -59,
+        "diamond": -59,
+        "emerald": 85
+    },
+    "acceptable-drift": 10
+}

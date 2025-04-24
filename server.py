@@ -19,6 +19,7 @@ class Server:
 
         # hands the selected world data to the mcp to be loaded
         self.mcp.set_world(self.json_manager.get_world())
+        self.mcp.set_config(self.json_manager.get_config())
 
         # identifies the hostname
         self.HOST = "localhost"

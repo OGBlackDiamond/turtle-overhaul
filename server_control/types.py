@@ -9,7 +9,7 @@ class Instruction_Status(IntEnum):
 
 class Task_Status(IntEnum):
     IDLE = 0
-    COAL = 1
+    MINE = 1
 
 class Heading(IntEnum):
     NORTH = 0
