@@ -42,8 +42,11 @@ class Master_Control_Program:
     def main(self):
         for turtle in self.turtles:
             self.gen_world(turtle)
-            self.decide_task(turtle)
-            self.decide_instructions(turtle)
+            #self.decide_task(turtle)
+            #self.decide_instructions(turtle)
+            #self.controller(turtle)
+            print(turtle.task)
+            print(turtle.instruction)
 
 
     def decide_task(self, turtle: 'Turtle'):
@@ -69,7 +72,7 @@ class Master_Control_Program:
 
 
     def decide_instructions(self, turtle: 'Turtle'):
-        if turtle.instruction != Types.Instruction_Status.IDLE: return
+        if not turtle.instruction == Types.Instruction_Status.IDLE: return
 
         match (turtle.task):
 
@@ -78,13 +81,13 @@ class Master_Control_Program:
                 
             case(Types.Task_Status.MINE):
 
-                match (turtle.prev_instruction):
+                match (turtle.prev_instruction): 
 
                     case(Types.Instruction_Status.GOTO):
                         self.tunnel(turtle)
 
                     case(Types.Instruction_Status.TUNNLING):
-                        # TODO: choose how to follow the mining algorithm
+                        # TODO: find a better way to follow the mining algo?
 
                         # finds a valid tunnling location
                         left_wall: bool = self.check_close_wall_left(turtle)

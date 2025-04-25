@@ -30,8 +30,8 @@
         "minecraft:coal": 80,
         "minecraft:charcoal": 80
     },
-    "emergency-refuling": true,
+    "emergency-refueling": true,
     "low-fuel-level": 500,
     "try-refuel-buffer": 50,
-    "refuel-ammount": 100
+    "refuel-ammount": 250
 }

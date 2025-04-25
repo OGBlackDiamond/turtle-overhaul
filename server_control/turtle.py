@@ -177,7 +177,8 @@ class Turtle:
                         self.place("up")
                     
                     self.startup_chores_complete = True
-                    self.instruction = Types.Instruction_Status.IDLE;
+                    self.set_instruction(Types.Instruction_Status.IDLE)
+                    self.task = Types.Task_Status.IDLE
 
                 case Types.Instruction_Status.TUNNLING:
                     self.set_instruction(Types.Instruction_Status.IDLE)
@@ -404,7 +405,6 @@ class Turtle:
             self.queue_instruction(f"turtle.refuel({fuel_used})")
 
             fuel_used += fuel_count * 80
-
 
         # there is not enough coal to sustain the turtle
         # try to derive fuel from other sources the turtle may have
