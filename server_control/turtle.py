@@ -395,14 +395,34 @@ class Turtle:
 
         fuel_used = 0
 
+        # there is enough coal to refuel the turtle
         if (fuel["count"] * 80 > ammount):
 
-            fuel_used += math.ceil(ammount / 80)
+            fuel_count = math.ceil(ammount / 80)
 
             self.select(fuel["index"])
-            self.queue_instruction(f"refuel {fuel_used}")
+            self.queue_instruction(f"turtle.refuel({fuel_used})")
 
-        return fuel_used * 80
+            fuel_used += fuel_count * 80
+
+
+        # there is not enough coal to sustain the turtle
+        # try to derive fuel from other sources the turtle may have
+        # only works when emergency refuling is enabled in the config
+        else:
+
+            if not self.master_control_program.emergency_refuel: return 0
+
+            for slot in self.messages[0]["inventory"].values():
+                for n in self.master_control_program.fuel_values:
+                    if (slot["name"] == n):
+                        fuel_val = self.master_control_program.fuel_values.get(slot["name"])
+                        fuel_count = slot["count"]
+                        
+                        self.queue_instruction(f"turtle.refuel({fuel_count})")
+                        fuel_used += fuel_count * fuel_val
+
+        return fuel_used
 
 
     def check_inv(self, item: str) -> dict[str, int]:

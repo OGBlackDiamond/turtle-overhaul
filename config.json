@@ -9,5 +9,29 @@
         "diamond": -59,
         "emerald": 85
     },
-    "acceptable-drift": 10
+    "acceptable-drift": 10,
+    "fuel-values": {
+        "minecraft:wooden_hoe": 10,
+        "minecraft:wooden_axe": 10,
+        "minecraft:wooden_pickaxe": 10,
+        "minecraft:wooden_shovel": 10,
+        "minecraft:wooden_sword": 10,
+        "minecraft:lava_bucket": 1000,
+        "minecraft:blaze_rod": 120,
+        "minecraft:oak_log": 15,
+        "minecraft:dark_oak_log": 15,
+        "minecraft:spruce_log": 15,
+        "minecraft:birch_log": 15,
+        "minecraft:jungle_log": 15,
+        "minecraft:acacia_log": 15,
+        "minecraft:mangrove_log": 15,
+        "minecraft:cherry_log": 15,
+        "minecraft:stick": 5,
+        "minecraft:coal": 80,
+        "minecraft:charcoal": 80
+    },
+    "emergency-refuling": true,
+    "low-fuel-level": 500,
+    "try-refuel-buffer": 50,
+    "refuel-ammount": 100
 }

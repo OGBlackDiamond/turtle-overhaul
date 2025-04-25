@@ -19,8 +19,14 @@ class Master_Control_Program:
     world: dict
     world_data: dict
 
-    ore_levels: dict
+    ore_levels: dict[str, int]
     y_band: int
+
+    fuel_values: dict[str, int]
+    emergency_refuel: bool
+    low_fuel_level: int
+    try_refuel_buffer: int
+    refuel_ammount: int
 
     # initializes with the origional coordinates that the turtle will spawn at
     def __init__(self, starting_coords: list, box_direction: str):
@@ -46,7 +52,7 @@ class Master_Control_Program:
 
         # if the turtle's fuel is getting low, start mining for more
         # this takes priority because a turtle that can't move is useless
-        if (turtle.fuel < 500):
+        if (turtle.fuel < self.low_fuel_level):
             if (self.check_mine_band(turtle, "coal")): return
             turtle.task = Types.Task_Status.MINE
             turtle.set_destination(turtle.x, self.ore_levels["coal"], turtle.z)
@@ -112,8 +118,9 @@ class Master_Control_Program:
 
                 
 
-    def controller(self):
-        pass
+    def controller(self, turtle: 'Turtle'):
+        if (turtle.fuel < self.low_fuel_level + self.try_refuel_buffer):
+            turtle.refuel(self.refuel_ammount)
 
 
     def tunnel(self, turtle: 'Turtle'):
@@ -281,5 +288,15 @@ class Master_Control_Program:
         self.ore_levels = config["ore-y-levels"]
 
         self.y_band = config["acceptable-drift"]
+
+        self.fuel_values = config["fuel-values"]
+
+        self.emergency_refuel = config["emergency-refueling"]
+
+        self.low_fuel_level = config["low-fuel-level"]
+
+        self.try_refuel_buffer = config["try-refuel-buffer"]
+
+        self.refuel_ammount = config["refuel-ammount"]
 
 
