@@ -42,16 +42,17 @@ class Master_Control_Program:
     def main(self):
         for turtle in self.turtles:
             self.gen_world(turtle)
-            #self.decide_task(turtle)
-            #self.decide_instructions(turtle)
+            self.decide_task(turtle)
+            self.decide_instructions(turtle)
             #self.controller(turtle)
-            print(turtle.task)
-            print(turtle.instruction)
+            print("loop finished")
 
 
     def decide_task(self, turtle: 'Turtle'):
         if not turtle.startup_chores_complete: return
         if not turtle.task == Types.Task_Status.IDLE: return
+
+        print("deciding task")
 
         # if the turtle's fuel is getting low, start mining for more
         # this takes priority because a turtle that can't move is useless
@@ -74,6 +75,8 @@ class Master_Control_Program:
     def decide_instructions(self, turtle: 'Turtle'):
         if not turtle.instruction == Types.Instruction_Status.IDLE: return
 
+        print("deciding instruction")
+
         match (turtle.task):
 
             case(Types.Task_Status.IDLE):
@@ -85,6 +88,7 @@ class Master_Control_Program:
 
                     case(Types.Instruction_Status.GOTO):
                         self.tunnel(turtle)
+                        print("done done done")
 
                     case(Types.Instruction_Status.TUNNLING):
                         # TODO: find a better way to follow the mining algo?
@@ -128,6 +132,8 @@ class Master_Control_Program:
 
     def tunnel(self, turtle: 'Turtle'):
 
+        print("tunnling")
+
         turtle_position = turtle.x if (self.world["bounding_box"]["infinite_dimension"] == "z") else turtle.z
         left_wall: bool = self.check_close_wall_left(turtle)
 
@@ -142,11 +148,17 @@ class Master_Control_Program:
             self.world["deposit_block"][2]
         )) - 10
 
+        print("sending turt tunnel")
         turtle.tunnel(int(dist / 8))
 
+        print("setting instruction")
         turtle.set_instruction(Types.Instruction_Status.TUNNLING)
+        
+        print("done")
 
         self.world["bounding_box"]["left" if left_wall else "right"][f"{turtle_position},{turtle.y}"] = int(dist/8)
+
+        print("done done")
 
 
     def check_bounding_wall(self, is_left_wall: bool, x: int, y: int) -> int:
