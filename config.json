@@ -33,5 +33,29 @@
     "emergency-refueling": true,
     "low-fuel-level": 500,
     "try-refuel-buffer": 50,
-    "refuel-ammount": 250
+    "refuel-ammount": 250,
+    "coal-buffer": 32,
+    "max-swarm-size": 10,
+    "inventory-full-threshold": 14,
+    "smelt-recipes": {
+        "minecraft:raw_iron": "minecraft:iron_ingot",
+        "minecraft:raw_gold": "minecraft:gold_ingot",
+        "minecraft:raw_copper": "minecraft:copper_ingot"
+    },
+    "reproduce-materials": {
+        "computercraft:turtle_normal": 1,
+        "computercraft:disk_drive": 1,
+        "computercraft:disk": 1,
+        "minecraft:diamond_pickaxe": 1
+    },
+    "craft-materials": {
+        "minecraft:iron_ingot": 7,
+        "minecraft:redstone": 1,
+        "minecraft:diamond": 3,
+        "minecraft:stone": 14,
+        "minecraft:glass_pane": 1,
+        "minecraft:chest": 1,
+        "minecraft:stick": 2
+    },
+    "resource-priority": ["diamond", "gold", "redstone", "iron", "copper", "lapis", "emerald"]
 }

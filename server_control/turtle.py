@@ -379,8 +379,8 @@ class Turtle:
     def dig(self, direction: str = "") -> None:
         self.directional_command("dig", direction)
 
-    def place(self, direection: str = "") -> None:
-        self.directional_command("place", direection)
+    def place(self, direction: str = "") -> None:
+        self.directional_command("place", direction)
 
     def drop(self, direction: str = "") -> None:
         self.directional_command("drop", direction)

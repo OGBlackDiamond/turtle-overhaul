@@ -28,6 +28,14 @@ class Master_Control_Program:
     try_refuel_buffer: int
     refuel_ammount: int
 
+    coal_buffer: int
+    max_swarm_size: int
+    inventory_full_threshold: int
+    smelt_recipes: dict[str, str]
+    reproduce_materials: dict[str, int]
+    craft_materials: dict[str, int]
+    resource_priority: list[str]
+
     # initializes with the origional coordinates that the turtle will spawn at
     def __init__(self, starting_coords: list, box_direction: str):
         self.turtles = []
@@ -48,28 +56,125 @@ class Master_Control_Program:
             print("loop finished")
 
 
+    # decision tree for assigning a turtle's next task
+    # priority order: REFUEL > DEPOSIT > MINE_FUEL > MINE_RESOURCES > SMELT > CRAFT > REPRODUCE > IDLE
     def decide_task(self, turtle: 'Turtle'):
         if not turtle.startup_chores_complete: return
         if not turtle.task == Types.Task_Status.IDLE: return
 
         print("deciding task")
 
-        # if the turtle's fuel is getting low, start mining for more
-        # this takes priority because a turtle that can't move is useless
-        if (turtle.fuel < self.low_fuel_level):
-            if (self.check_mine_band(turtle, "coal")): return
-            turtle.task = Types.Task_Status.MINE
-            turtle.set_destination(turtle.x, self.ore_levels["coal"], turtle.z)
-            turtle.set_instruction(Types.Instruction_Status.GOTO)
+        if self.should_refuel(turtle):
+            turtle.task = Types.Task_Status.REFUEL
 
-        else:
-            if (turtle.check_inv("minecraft:diamond")["count"] < 20):
-                if (self.check_mine_band(turtle, "diamond")): return
-                turtle.task = Types.Task_Status.MINE
-                turtle.set_destination(turtle.x, self.ore_levels["diamond"], turtle.z)
-                turtle.set_instruction(Types.Instruction_Status.GOTO)
+        elif self.should_deposit(turtle):
+            turtle.task = Types.Task_Status.DEPOSIT
+
+        elif self.should_mine_fuel(turtle):
+            turtle.task = Types.Task_Status.MINE_FUEL
+
+        elif self.should_mine_resources(turtle):
+            turtle.task = Types.Task_Status.MINE_RESOURCES
+
+        elif self.should_smelt(turtle):
+            turtle.task = Types.Task_Status.SMELT
+
+        elif self.should_craft(turtle):
+            turtle.task = Types.Task_Status.CRAFT
+
+        elif self.should_reproduce(turtle):
+            turtle.task = Types.Task_Status.REPRODUCE
 
 
+    ###########################################
+    ##### DECISION TREE CONDITION CHECKS ######
+    ###########################################
+
+    # critically low fuel -- turtle must refuel immediately or it will be stranded
+    def should_refuel(self, turtle: 'Turtle') -> bool:
+        return turtle.fuel < self.low_fuel_level
+
+    # inventory is nearly full -- need to go deposit before mining more
+    def should_deposit(self, turtle: 'Turtle') -> bool:
+        occupied_slots = 0
+        if len(turtle.messages) > 0:
+            for slot in turtle.messages[0]["inventory"].values():
+                if slot["count"] > 0:
+                    occupied_slots += 1
+        return occupied_slots >= self.inventory_full_threshold
+
+    # coal reserves in inventory are getting low -- proactively mine more
+    def should_mine_fuel(self, turtle: 'Turtle') -> bool:
+        coal = turtle.check_inv("minecraft:coal")
+        return coal["count"] < self.coal_buffer
+
+    # default productive activity -- always mine valuables if nothing else is needed
+    def should_mine_resources(self, turtle: 'Turtle') -> bool:
+        return True
+
+    # turtle has raw ores that need smelting into ingots
+    def should_smelt(self, turtle: 'Turtle') -> bool:
+        for raw_ore in self.smelt_recipes:
+            if turtle.check_inv(raw_ore)["count"] > 0:
+                return True
+        return False
+
+    # master turtle has all materials to craft a new turtle (master only, crafty turtle)
+    def should_craft(self, turtle: 'Turtle') -> bool:
+        if turtle.type != "M":
+            return False
+
+        for item, needed in self.craft_materials.items():
+            if turtle.check_inv(item)["count"] < needed:
+                return False
+        return True
+
+    # mcp decides the swarm needs more turtles and the turtle has the items to clone
+    def should_reproduce(self, turtle: 'Turtle') -> bool:
+        if turtle.type != "M":
+            return False
+
+        if len(self.turtles) >= self.max_swarm_size:
+            return False
+
+        for item, needed in self.reproduce_materials.items():
+            if turtle.check_inv(item)["count"] < needed:
+                return False
+        return True
+
+
+    # picks the optimal Y-level to mine at based on what the turtle needs most
+    # returns an int (Y-level from ore-y-levels config)
+    def choose_mine_target(self, turtle: 'Turtle') -> int:
+
+        # if master and swarm isn't full, mine what's most deficient for crafting
+        if turtle.type == "M" and len(self.turtles) < self.max_swarm_size:
+            worst_ore = ""
+            worst_ratio = float("inf")
+
+            for item, needed in self.craft_materials.items():
+                # strip "minecraft:" prefix and "_ingot" suffix to get ore key
+                ore_name = item.removeprefix("minecraft:").removesuffix("_ingot")
+
+                # skip materials we can't mine (stone, glass_pane, chest, etc.)
+                if ore_name not in self.ore_levels:
+                    continue
+
+                count = turtle.check_inv(item)["count"]
+                ratio = count / needed
+                if ratio < worst_ratio:
+                    worst_ratio = ratio
+                    worst_ore = ore_name
+
+            if worst_ore:
+                return self.ore_levels[worst_ore]
+
+        # fallback: mine by value priority
+        for ore_name in self.resource_priority:
+            if ore_name in self.ore_levels:
+                return self.ore_levels[ore_name]
+
+        return self.ore_levels["diamond"]
 
 
     def decide_instructions(self, turtle: 'Turtle'):
@@ -123,7 +228,46 @@ class Master_Control_Program:
                         turtle.set_instruction(Types.Instruction_Status.GOTO)
 
 
-                
+            case(Types.Task_Status.REFUEL):
+                # TODO: navigate to coal Y-level, mine coal, then self-refuel
+                # once refueled, set task back to IDLE
+                pass
+
+            case(Types.Task_Status.DEPOSIT):
+                # TODO: navigate to deposit block, drop off valuable items
+                # reclaim inventory space, then set task back to IDLE
+                pass
+
+            case(Types.Task_Status.MINE_FUEL):
+                # TODO: navigate to coal Y-level, tunnel specifically for coal
+                # similar to MINE but targeted at fuel replenishment
+                pass
+
+            case(Types.Task_Status.MINE_RESOURCES):
+                # TODO: pick best ore to mine based on inventory needs
+                # navigate to its Y-level, tunnel and collect valuables
+                pass
+
+            case(Types.Task_Status.SMELT):
+                # TODO: navigate to base furnace, insert raw ore and fuel
+                # wait for smelting to complete, collect ingots
+                # furnace interaction: drop from above for input, drop from side for fuel
+                # suck from side/below for output
+                pass
+
+            case(Types.Task_Status.CRAFT):
+                # TODO: master turtle arranges materials in crafting grid
+                # craft computer first (7 stone, 1 redstone, 1 glass pane)
+                # craft chest (8 planks)
+                # craft turtle (7 iron, 1 computer, 1 chest)
+                # requires crafty turtle peripheral
+                pass
+
+            case(Types.Task_Status.REPRODUCE):
+                # TODO: trigger the clone sequence
+                # turtle must have: crafted turtle item, disk drive, disk, coal
+                # calls turtle.clone() which handles placement and boot
+                pass
 
     def controller(self, turtle: 'Turtle'):
         if (turtle.fuel < self.low_fuel_level + self.try_refuel_buffer):
@@ -313,5 +457,19 @@ class Master_Control_Program:
         self.try_refuel_buffer = config["try-refuel-buffer"]
 
         self.refuel_ammount = config["refuel-ammount"]
+
+        self.coal_buffer = config["coal-buffer"]
+
+        self.max_swarm_size = config["max-swarm-size"]
+
+        self.inventory_full_threshold = config["inventory-full-threshold"]
+
+        self.smelt_recipes = config["smelt-recipes"]
+
+        self.reproduce_materials = config["reproduce-materials"]
+
+        self.craft_materials = config["craft-materials"]
+
+        self.resource_priority = config["resource-priority"]
 
 
